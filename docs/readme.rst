@@ -14,12 +14,12 @@ OpenSubmit-Exec gibt dem Anwender also viel Freiheit, aber ggf. auch viel Arbeit
 
 Deshalb wurde, um das Erstellen von Aufgaben zu vereinfachen und zu beschleunigen, ein einzelnes und universell einsetzbares Validator-Skript geschrieben und in OpenSubmit-Exec integriert. Dieser kann den abgegebenem Beispielcode mit einer Beispieldatei vergleichen. Eine Aufgabe kann somit ohne spezifischem Python-Skript erstellt werden. Gerade für Tutoren ohne Python-Kenntnisse wird dadurch die Aufgabenerstellung stark erleichtert. Die Option der spezifische Aufgabenerstellung mit Validatorskript bleibt aber weiterhin gegeben.
 
-Der neue Validator mit integriertem Vergleichsskript wurde für die Lehrveranstaltung Grundlagen Informatik entwickelt und wird entsprechend OpenSubmit-Exec-GI genannt. Das Erstellen von Aufgaben kann durch diesen stark vereinfacht werden. Allerdings gestaltet sich entsprechend auch die Bedienung etwas anders. Deshalb lohnt es sich einen Blick in das Howto zu werfen.
+Der neue Validator mit integriertem Vergleichsskript wurde für die Lehrveranstaltung Grundlagen Informatik entwickelt und wird entsprechend OpenSubmit-Exec-GI genannt. Das Erstellen von Aufgaben kann durch diesen stark vereinfacht werden. Allerdings gestaltet sich entsprechend auch die Bedienung etwas anders. Deshalb lohnt es sich einen Blick in das `Howto <https://github.com/mGrapf/opensubmit-gi/tree/master/docs/howto>`_ zu werfen.
 
 2 OpenSubmit-Web-Gi
 -------------------
 
-kommt noch ...
+kommt noch
 
 
 Literatur
