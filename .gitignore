@@ -19,12 +19,8 @@ web/database.sqlite
 *pip-selfcheck.json*
 *venv*
 *.bak*
-*.whl
 docs/formats
 *htmlcov*
-docs/formats/html/_sources/modules.rst.txt
-docs/formats/html/modules.html
-docs/modules.rst
 google_account.json
 terraform.tfstate
 terraform.tfstate.backup

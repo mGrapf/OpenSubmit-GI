@@ -8,14 +8,14 @@ with open('requirements.txt') as f:
 
 setup(
     name = 'opensubmit-exec',
-    version = '0.7.32',
-    url = 'https://github.com/troeger/opensubmit',
+    version = '0.0.1',
+    url = 'hhttps://github.com/mGrapf/opensubmit-gi',
     license='AGPL',
-    author = 'Peter Tröger',
-    description = 'This is the executor daemon for the OpenSubmit web application.',
-    author_email = 'peter@troeger.eu',
+    author = 'Mathias Denz',
+    description = 'This is the executor daemon for the OpenSubmit-GI web application.',
+    author_email = 'mathias.denz@gmail.com',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 1 - Alpha',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.4'
