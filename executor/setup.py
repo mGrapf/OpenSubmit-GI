@@ -7,7 +7,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name = 'opensubmit-exec',
+    name = 'opensubmit-exec-gi',
     version = '0.0.1',
     url = 'hhttps://github.com/mGrapf/opensubmit-gi',
     license='AGPL',
