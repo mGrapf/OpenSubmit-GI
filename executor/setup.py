@@ -27,7 +27,7 @@ setup(
     package_data = {'opensubmitexec': ['VERSION']},
     entry_points={
         'console_scripts': [
-            'opensubmit-exec = opensubmitexec.cmdline:console_script',
+            'opensubmit-exec-gi = opensubmitexec.cmdline:console_script',
         ],
     }
 )
