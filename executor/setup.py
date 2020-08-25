@@ -7,7 +7,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name = 'opensubmit-exec-gi',
+    name = 'opensubmit-exec',
     version = '0.0.1',
     url = 'hhttps://github.com/mGrapf/opensubmit-gi',
     license='AGPL',
@@ -27,7 +27,7 @@ setup(
     package_data = {'opensubmitexec': ['VERSION']},
     entry_points={
         'console_scripts': [
-            'opensubmit-exec-gi = opensubmitexec.cmdline:console_script',
+            'opensubmit-exec = opensubmitexec.cmdline:console_script',
         ],
     }
 )
