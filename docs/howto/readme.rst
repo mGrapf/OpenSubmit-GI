@@ -2,6 +2,18 @@
 OpenSubmit-Exec-Gi Howto
 ########################
 
+.. warning::
+
+    Sowohl das Programm, als auch diese Anleitung befinden sich bisher noch im Aufbau!
+
+Dieses Howto beschreibt die Nutzung des Validators der OpenSubmit-Modifikation OpenSubmit-GI. Bevor wir beginnen, laden Sie sich bitte die notwendigen Dateien herunter.
+
+.. code-block:: sh
+    
+    git clone xxxxx
+    cd opensubmit-exec-howto
+
+
 1 Lokale Installation
 ---------------------
 Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. Da Standardmäßig alle Python-Module in die allgemeine Systemumgebung installiert werden, empfielt es sich virtualenv zu nutzen. Dieses kann in separaten Verzeichnissen voneinander isolierte Python-Umgebungen erzeugen. Gerade um Programme zu testen empfielt sich diese Vorgehensweise, da so Versionskonflikte vermieden werden.
@@ -52,10 +64,10 @@ Variante 3 ist wäre eher für eine permanente Installation zu empfehlen. Altern
     pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor   # opensubmit installieren
 
 
-Wichtige Dateien
-^^^^^^^^^^^^^^^^
+Aufgabe 1 - Hello World
+-----------------------
 
-Der Validator erwartet mindestens einen Parameter. Wir interessieren uns allerdings zunächst allein auf den lokalen Test: "opensubmit-exec test <dir>". Dieser erwartet als Parameter einen Pfad zu mit folgenden Dateien
+Der lokale Test des Validators kann mit "opensubmit-exec test <dir>". Als Parameter muss diesem ein Verzeichnis mitgegeben werden, welches nach der offiziellen Dokumentation den Python-Validator und eine Testabgabe enthält. Wir konzentrieren uns aber zunächst auf das Vorgehen mit der vereinfachten Version opensubmit-exec-gi.
 
     • validator_example.cpp
     • validator_main.cpp*
