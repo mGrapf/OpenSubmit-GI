@@ -45,7 +45,7 @@ Der OpenSubmit-Validator ist nun installiert. Um ihn aufzurufen muss wieder die 
     
     # Variante 2: Verzeichnis in PATH eintragen.
     # (Gilt nur für die aktuelle Sitzung)
-    PATH=$PATH:~/.opensubmit/bin/
+    PATH=~/.opensubmit/bin/:$PATH
     opensubmit-exec
     
     # Vairante 3: Programmverzeichnis verknüpfen
