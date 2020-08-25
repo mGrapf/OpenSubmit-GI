@@ -1,5 +1,5 @@
 ########################
-OpenSubmit-Exec-Gi Howto
+OpenSubmit-Exec-GI Howto
 ########################
 
 
