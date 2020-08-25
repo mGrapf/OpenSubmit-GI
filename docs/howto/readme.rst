@@ -2,9 +2,6 @@
 OpenSubmit-Exec-Gi Howto
 ########################
 
-.. warning::
-
-    Sowohl das Programm, als auch diese Anleitung befinden sich bisher noch im Aufbau!
 
 Dieses Howto beschreibt die Nutzung des Validators der OpenSubmit-Modifikation OpenSubmit-GI. Bevor wir beginnen, laden Sie sich bitte die notwendigen Dateien herunter.
 
@@ -16,12 +13,9 @@ Dieses Howto beschreibt die Nutzung des Validators der OpenSubmit-Modifikation O
 
 1 Lokale Installation
 ---------------------
-Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. Da Standardmäßig alle Python-Module in die allgemeine Systemumgebung installiert werden, empfielt es sich virtualenv zu nutzen. Dieses kann in separaten Verzeichnissen voneinander isolierte Python-Umgebungen erzeugen. Gerade um Programme zu testen empfielt sich diese Vorgehensweise, da so Versionskonflikte vermieden werden.
+Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. Da Standardmäßig alle Python-Module in die allgemeine Systemumgebung installiert werden, empfielt es sich virtualenv zu nutzen. Dieses kann in separaten Verzeichnissen voneinander isolierte Python-Umgebungen erzeugen. Gerade um Programme zu testen empfielt sich diese Vorgehensweise, da so Versionskonflikte vermieden werden. 
 
 Die Anleitung beschreibt die Installation auf einem Debian-/Ubuntusystem im Heimatverzeichnis unter ".opensubmit".
-
-Installation mit Virtualenv
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: sh
 
@@ -64,35 +58,108 @@ Variante 3 ist wäre eher für eine permanente Installation zu empfehlen. Altern
     pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor   # opensubmit installieren
 
 
-Aufgabe 1 - Hello World
------------------------
+Aufgabe 1 - Statische Ausgaben
+-----------------------------
 
-Der lokale Test des Validators kann mit "opensubmit-exec test <dir>". Als Parameter muss diesem ein Verzeichnis mitgegeben werden, welches nach der offiziellen Dokumentation den Python-Validator und eine Testabgabe enthält. Wir konzentrieren uns aber zunächst auf das Vorgehen mit der vereinfachten Version opensubmit-exec-gi.
+Der lokale Test des Validators kann mit "opensubmit-exec test <dir>". Als Parameter muss diesem ein Verzeichnis mitgegeben werden, welches mindestens die Datei "validator_example.cpp" enthält. Im ersten Beispiel ist dies ein einfaches Hello-World-Programm. 
+Theoretisch reicht dies dem Validator bereits. Wenn dieser keine Studentenabgabe "submission.cpp" im Verzeichnis findet, wird er alternativ die Ausgabe der Beispieldatei mit sich selbst vergleichen. 
 
-    • validator_example.cpp
-    • validator_main.cpp*
-    • submission.cpp*
-Optional
-    • validator.zip
-    • submission.cpp
+.. code-block:: cpp
 
-Da der C++-Validator die Abgabe immer mit einer Beispieldatei vergleicht, reicht es nicht ihn alleine zu speichern. Der Python-Validator muss immer mit mindestens einer cpp-Datei gepackt werden. In der aktuellen Version des C++-Validators werden vorgegebene Dateinamen verwendet (unterstrichen). Ein Validator-Zip sollte wie folgt aussehen:
-xxx
+    #include <iostream>
+    using namespace std;
+
+    int main(int argc, char* argv[]){
+        cout << "Hello World";
+        return 0;
+    }
+
+Eine Studentenabgabe hat für den lokalen Test immer den Dateinamen "submission.cpp". Später auf dem Server ist der Dateiname aber bei einer einzelnen Datei egal.
+
+.. code-block:: sh
+
+    #include <iostream>
+    using namespace std;
+
+    int main(){
+        cout << "Hello World!" << endl;
+        return 0;
+    }
+
+Beim genauen hinsehen fallen allerdings kleine Unterschiede zur Beispieldatei auf: Ein "!" und ein Zeilenumbruch kamen in der Ausgabe hinzu. Der Validator wird in diesem Fall dennoch die Abgabe als richtig bewerten. Standardmäßig gibt die Beispielausgabe nur vor, welche Zeichen mindestens vorkommen müssen. Dies kann später aber für jede Aufgabe individuell festgelegt werden.
+
+Probieren wir es aus:
+
+.. code-block:: sh
+
+    opensubmit-exec test 01_validator_example
+    ...
+    ...
+    ...
+    2020-08-25 22:46:07,523 (33): Sending result to OpenSubmit Server: [('SubmissionFileId', None), ('Message', 'All tests passed. Awesome!'), ('Action', None), ('MessageTutor', 'All tests passed.\nOutput:\n\nHello World'), ('ExecutorDir', '/tmp/42_s25_74u5/'), ('ErrorCode', 0), ('Secret', '49846zut93purfh977TTTiuhgalkjfnk89'), ('UUID', '66619473387506')]  
+    
+Wichtig ist am Ende der ErrorCode 0, bzw. die Nachricht ('Message', 'All tests passed. Awesome!'), welche später dem Studenten gezeigt wird.
+
+Aufgabe 2 - Variable Eingaben/Ausgaben
+--------------------------------------
+
+Dieses Mal soll der Student einen einfachen Taschenrechner programmieren. Dazu befindet sich im Verzeichnis eine Datei "aufgabenstellung.cpp". Diese wird vom Validator ignoriert, kann aber für den Studenten hilfreich sein, da bereits Code-Schnipsel mit fertig formatierten Ausgaben enthalten sind. Für den Vergleichstest ist ausschließlich die submission.cpp und alle Dateien, die mit "validator\_" beginnen relevant.
+
+In dieser Aufgabe wird keine statische Ausgabe verlangt. Um verschiedene Eingaben zu simulieren, können zu beginn des Beispiels in einer Konfiguration mehrere Test-Cases erstellt werden. Die Konfiguration ist im ini-Format, welche auskommentiert zu beginn der Vergleichsdatei erfolgen sollte. Die Eingaben sind durch Leerzeichen getrennt und werden dem Programm sowohl als Parameter, als auch als Konsoleneingabe mitgegeben.
+
+.. code-block:: cpp
+
+    // [CONFIG]
+    // TEST_CASE_1 = 2 + 3
+    // TEST_CASE_2 = 2 - 3.1
+    // TEST_CASE_3 = 4.2 * 3.5
+    // TEST_CASE_4 = -2 / 3
+    // TEST_CASE_5 = 2 / 0
+    // ;EOF
+    #include <iostream>
+    using namespace std;
+    ...
 
 
-Validator starten
-^^^^^^^^^^^^^^^^^
-~/OS_Howto/02_validator_example/
-Im ersten Ordner befindet sich ausschließlich die Datei
-Beginnen wir mit einer einfachen Hello-World-Aufgabe. Schauen Sie sich den Ordner ~/OpenSubmitHowto/01_validator_example/ an. Dort befindet sich ein einfaches Hello-World-Programm mit dem Dateinamen validator_example.cpp.
 
-Sie sollten sich in dem Ordner ~/OpenSubmitHowto/ befinden.
-Geben Sie opensubmit-exec test 01_validator_example ein.
-OpenSubmit startet nun und führt einen Test aus. Dabei überprüft nutzt er die Dateien in dem angegebenen Ordner.
+Aufgabe 3 - Funktionen/Klassen
+------------------------------
 
-Submission
-^^^^^^^^^^
-Um den Einstieg in OpenSubmit zu erleichtern werden wir hier den Ablauf der Erstellung von Tests Schritt für Schritt durchgehen. Wir gehen davon aus, dass der Executor bereits lokal auf Ihrem Computer installiert ist.
-Wir fangen mit einem einfachen Hello-World-Programm an. Dazu benötigen wir eine Beispieldatei:
+Soll der Funktionen oder Klassen programmiert werden, so können diese auch unabhängig der vom Studenten abgegebenen main-Funktion getestet werden. Stattdessen können Sie eine weitere Datei anlegen, welche die main-Funktion und ggf. weiteren Code beinhaltet. Diese Datei heißt validator_main.cpp. Wird diese Datei verwendet, so muss auch die Konfiguration in dieser erfolgen. Die Möglichkeiten der Konfiguration werden im nächsten Kapitel behandelt.
 
-Es fällt auf, dass das Programm des Studenten von der Vorlage abweicht.
+Die Separate validator_main.cpp hat folgende vorteile:
+
+* Separate main-Funktion (die main-Funktion der validator_example.cpp und der submission.cpp werden dann automatisch entfernt)
+* Einheitliche Konsolenausgaben
+* Separate Tests von Klassen und Funktionen
+* Globale Elemente können bereits definiert werden
+* etc.
+
+.. code-block:: cpp
+
+    // [CONFIG]
+    // REMOVE_MAIN = TRUE
+    // TEST_CASE_1 = 5 5*$RANDOM
+    // TEST_CASE_2 = 10 10*$RANDOM
+    // TEST_CASE_3 = 20 20*$RANDOM
+    // RANDOM_MIN = 0
+    // RANDOM_MAX = 30
+    // ;EOF
+    #include "validator_example.cpp"
+
+    int main(int argc, char* argv[]){
+        int n;
+        cin >> n;
+        ...
+        ...
+        ...
+
+Der Validator wird zunächst die validator_main.cpp kompilieren und anschließend das #include "validator_example.cpp" mit der vom studenten abgegebenen Datei (submission.cpp) ersetzen und erneut kompilieren.
+
+
+Konfiguration der Validator-Tests
+---------------------------------
+
+kommt noch
+
+
