@@ -3,7 +3,9 @@ OpenSubmit-Exec-Gi Howto
 ########################
 
 
-Dieses Howto beschreibt die Nutzung des Validators der OpenSubmit-Modifikation OpenSubmit-GI. Bevor wir beginnen, laden Sie sich bitte die notwendigen Dateien herunter.
+Dieses Howto beschreibt die Nutzung des Validators der `OpenSubmit <https://github.com/troeger/opensubmit>`_-Modifikation `OpenSubmit-GI <https://github.com/mGrapf/opensubmit-gi>`_.
+
+Bitte laden Sie sich dazu die Beispieldateien herunter.
 
 .. code-block:: sh
     
