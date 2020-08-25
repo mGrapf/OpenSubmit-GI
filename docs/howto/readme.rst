@@ -159,9 +159,51 @@ Die Separate validator_main.cpp hat folgende vorteile:
 Der Validator wird zunächst die validator_main.cpp kompilieren und anschließend das #include "validator_example.cpp" mit der vom studenten abgegebenen Datei (submission.cpp) ersetzen und erneut kompilieren.
 
 
-Konfiguration der Validator-Tests
----------------------------------
+Konfigurationsmöglichkeiten der Validator-Tests
+-----------------------------------------------
+*Die Erklärungen der einzelnen Konfigurationen wird in Zukunft noch ergänzt.*
 
-kommt noch
+
+Test-Cases
+^^^^^^^^^^
+TEST_CASE_0 = 
+
+...
+
+TEST_CASE_5 = 
+
+TEST_CASE_N =
+
+N_TEST_CASES = 1
+
+Zufällige Zahlen
+^^^^^^^^^^^^^^^^
+RANDOM_MIN = 0
+
+RANDOM_MAX = 50
+
+RANDOM_FLOAT = 0
+
+Verbiete Rekursion
+^^^^^^^^^^^^^^^^^^
+RECURSION = FALSE
+
+Erlaube weitere Bibliotheken
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ALLOW_LIBRARIES =
+
+Strenger Vergleich
+^^^^^^^^^^^^^^^^^^
+COMPARE_ALL = FALSE
+
+Ausgabe nacheinander testen
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SEPARATOR = '\a'
+
+Zusätzliche strengere Kompilierung
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EXTRA_COMPILATION = 
+
+
 
 
