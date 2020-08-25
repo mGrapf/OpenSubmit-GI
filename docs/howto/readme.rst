@@ -27,6 +27,7 @@ Um Ihre Python-Installation sauber zu halten, empfehlen wir die Verwendung von V
 Oder direkt im System installieren:
 
 .. code-block:: sh
+
     sudo apt-get install python3-pip
     pip install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
 
@@ -41,19 +42,12 @@ Wichtige Dateien
     • validator_example.cpp
     • validator_main.cpp*
     • submission.cpp*
-*Optional
+Optional
     • validator.zip
     • submission.cpp
 
 Da der C++-Validator die Abgabe immer mit einer Beispieldatei vergleicht, reicht es nicht ihn alleine zu speichern. Der Python-Validator muss immer mit mindestens einer cpp-Datei gepackt werden. In der aktuellen Version des C++-Validators werden vorgegebene Dateinamen verwendet (unterstrichen). Ein Validator-Zip sollte wie folgt aussehen:
-    • einfacherTest.zip
-        ◦ validator.py
-        ◦ validator-example.cpp
-Um einen Test zu beeinflussen, kann zusätzlich eine weitere cpp-Datei geschrieben werden, welche dann die validator-example.cpp aufruft. Ein solches Validator-Zip sollte so aussehen:
-    • umfangreicherTest.zip
-        ◦ validator.py
-        ◦ validator-main.cpp
-        ◦ validator-example.cpp
+xxx
 
 
 Validator starten
