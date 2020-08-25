@@ -13,33 +13,46 @@ Installation mit Virtualenv
 
 .. code-block:: sh
 
-    sudo apt-get install python3-pip python3-venv
+    sudo apt-get install python3-pip python3-venv   # notwendige Packete installieren
 
-    python3 -m venv ~/.opensubmit   # der Pfad darf selbstverständlich variieren
+    python3 -m venv ~/.opensubmit   # virtualenv-Pfad erzeugen - Der Pfad darf selbstverständlich variieren
     
-    source ~/.opensubmit/bin/activate
+    source ~/.opensubmit/bin/activate   # virtualenv aktivieren
 
-    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
+    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor   # opensubmit installieren
 
-    deactivate
+    deactivate  # virtualenv wieder deaktivieren
 
-Der OpenSubmit-Validator ist nun installiert. Um ihn aufzurufen muss entweder die virtuelle Umgebung wieder mit "source ~/.opensubmit/bin/activate" aktiviert werden, oder der Programmpfad komplett eingegeben werden.
+Der OpenSubmit-Validator ist nun installiert. Um ihn aufzurufen muss wieder die virtuelle Umgebung wieder aktiviert werden. Alternativ gibt es volgende Möglichkeiten:
 
 .. code-block:: sh
 
+    # Variante 1: Programm mit vollständigem Pfad aufrufen
     ~/.opensubmit/bin/opensubmit-exe
     
+    
+    # Variante 2: Verzeichnis in PATH eintragen.
+    # (Gilt nur für die aktuelle Sitzung)
+    PATH=$PATH:~/.opensubmit/bin/
+    opensubmit-exec
+    
+    
+    # Vairante 3: Programmverzeichnis verknüpfen
     ln -s ~/.opensubmit/bin/opensubmit-exec ~/.local/bin
+    opensubmit-exec
 
-Oder direkt im System installieren:
+Variante 3 ist wäre eher für eine permanente Installation zu empfehlen. Alternativ kann ein OpenSubmit auch systemweit installiert werden:
 
+.. code-block:: sh
 
-    
-    
-Sobald der Validator installiert ist kann er im Terminal mit „opensubmit-exec“ aufgerufen werden. Er erwartet mindestens einen weiteren Parameter. Wir interessieren uns allerdings zunächst allein auf den lokalen Validator-test: opensubmit-exec test <dir>
+    sudo apt-get install python3-pip python3-venv
+    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor   # opensubmit installieren
+
 
 Wichtige Dateien
 ^^^^^^^^^^^^^^^^
+    
+opensubmit-exec erwartet mindestens einen Parameter. Wir interessieren uns allerdings zunächst allein auf den lokalen Validator-test: opensubmit-exec test <dir>
 
     • validator_example.cpp
     • validator_main.cpp*
