@@ -13,15 +13,20 @@ Installation mit Virtualenv
 
 .. code-block:: sh
 
-    sudo apt-get install python3-pip python3-venv   # notwendige Packete installieren
+    # notwendige Packete installieren
+    sudo apt-get install python3-pip python3-venv
 
-    python3 -m venv ~/.opensubmit   # virtualenv-Pfad erzeugen - Der Pfad darf selbstverständlich variieren
+    # virtualenv-Pfad erzeugen - Der Pfad darf selbstverständlich variieren
+    python3 -m venv ~/.opensubmit
     
-    source ~/.opensubmit/bin/activate   # virtualenv aktivieren
+    # virtualenv aktivieren
+    source ~/.opensubmit/bin/activate
 
-    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor   # opensubmit installieren
+    # opensubmit installieren
+    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
 
-    deactivate  # virtualenv wieder deaktivieren
+    # virtualenv wieder deaktivieren
+    deactivate
 
 Der OpenSubmit-Validator ist nun installiert. Um ihn aufzurufen muss wieder die virtuelle Umgebung wieder aktiviert werden. Alternativ gibt es volgende Möglichkeiten:
 
@@ -30,12 +35,10 @@ Der OpenSubmit-Validator ist nun installiert. Um ihn aufzurufen muss wieder die 
     # Variante 1: Programm mit vollständigem Pfad aufrufen
     ~/.opensubmit/bin/opensubmit-exe
     
-    
     # Variante 2: Verzeichnis in PATH eintragen.
     # (Gilt nur für die aktuelle Sitzung)
     PATH=$PATH:~/.opensubmit/bin/
     opensubmit-exec
-    
     
     # Vairante 3: Programmverzeichnis verknüpfen
     ln -s ~/.opensubmit/bin/opensubmit-exec ~/.local/bin
@@ -51,8 +54,8 @@ Variante 3 ist wäre eher für eine permanente Installation zu empfehlen. Altern
 
 Wichtige Dateien
 ^^^^^^^^^^^^^^^^
-    
-opensubmit-exec erwartet mindestens einen Parameter. Wir interessieren uns allerdings zunächst allein auf den lokalen Validator-test: opensubmit-exec test <dir>
+
+Der Validator erwartet mindestens einen Parameter. Wir interessieren uns allerdings zunächst allein auf den lokalen Test: "opensubmit-exec test <dir>". Dieser erwartet als Parameter einen Pfad zu mit folgenden Dateien
 
     • validator_example.cpp
     • validator_main.cpp*
