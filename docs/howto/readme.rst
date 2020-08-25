@@ -4,32 +4,34 @@ OpenSubmit-Exec-Gi Howto
 
 1 Lokale Installation
 ---------------------
-Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. 
+Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. Da Standardmäßig alle Python-Module in die allgemeine Systemumgebung installiert werden, empfielt es sich virtualenv zu nutzen. Dieses kann in separaten Verzeichnissen voneinander isolierte Python-Umgebungen erzeugen. Gerade um Programme zu testen empfielt sich diese Vorgehensweise, da so Versionskonflikte vermieden werden.
 
-Über virtualenv
-^^^^^^^^^^^^^^^
+Die Anleitung beschreibt die Installation auf einem Debian-/Ubuntusystem im Heimatverzeichnis unter ".opensubmit".
 
-Um Ihre Python-Installation sauber zu halten, empfehlen wir die Verwendung von Virtualenv.
+Installation mit Virtualenv
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: sh
 
-    sudo apt-get install python3-pip 
-    sudo pip3 install virtualenv
+    sudo apt-get install python3-pip python3-venv
 
-    python3 -m venv ~/.opensubmit
+    python3 -m venv ~/.opensubmit   # der Pfad darf selbstverständlich variieren
+    
     source ~/.opensubmit/bin/activate
 
-    pip install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
+    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
 
     deactivate
-    PATH=$PATH:~/opensubmit/bin
 
-Oder direkt im System installieren:
+Der OpenSubmit-Validator ist nun installiert. Um ihn aufzurufen muss entweder die virtuelle Umgebung wieder mit "source ~/.opensubmit/bin/activate" aktiviert werden, oder der Programmpfad komplett eingegeben werden.
 
 .. code-block:: sh
 
-    sudo apt-get install python3-pip
-    pip install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
+    ~/.opensubmit/bin/opensubmit-exe
+    
+    ln -s ~/.opensubmit/bin/opensubmit-exec ~/.local/bin
+
+Oder direkt im System installieren:
 
 
     
