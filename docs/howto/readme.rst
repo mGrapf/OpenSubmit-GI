@@ -5,33 +5,33 @@ OpenSubmit-Exec-GI Howto
 
 Dieses Howto beschreibt die Nutzung des Validators der `OpenSubmit <https://github.com/troeger/opensubmit>`_-Modifikation `OpenSubmit-GI <https://github.com/mGrapf/opensubmit-gi>`_.
 
-Bitte laden Sie sich dazu die Beispieldateien herunter.
+Bitte laden Sie sich dazu die Beispieldateien herunter und wechseln Sie in das entsprechende Verzeichnis.
 
 .. code-block:: sh
     
-    git clone xxxxx
-    cd opensubmit-exec-howto
+    git clone https://github.com/mGrapf/OpenSubmit-Exec-GI-Howto
+    cd OpenSubmit-Exec-GI-Howto
 
 
-1 Lokale Installation
----------------------
-Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. Da Standardmäßig alle Python-Module in die allgemeine Systemumgebung installiert werden, empfielt es sich virtualenv zu nutzen. Dieses kann in separaten Verzeichnissen voneinander isolierte Python-Umgebungen erzeugen. Gerade um Programme zu testen empfielt sich diese Vorgehensweise, da so Versionskonflikte vermieden werden. 
+Lokale Installation
+-------------------
+Da das Testen der erstellten Aufgaben durch  die OpenSubmit-Weboberfläche eher umständlich und langwierig ist, empfiehlt es sich den Validator zusätzlich auf dem eigenen Computer zu installieren. Da Standardmäßig alle Python-Module in die allgemeine Systemumgebung installiert werden, empfielt es sich virtualenv zu nutzen. Dieses kann in separaten Verzeichnissen voneinander isolierte Python-Umgebungen erzeugen um Versionskonflikte mit anderen Programmen zu verhindern. Gerade um OpenSubmit-GI zu testen empfielt sich diese Vorgehensweise, da das Validatorprogramm aus kompatibilitätsgründen den gleichen Namen wie die offizielle OpenSubmit-Version hat. 
 
-Die Anleitung beschreibt die Installation auf einem Debian-/Ubuntusystem im Heimatverzeichnis unter ".opensubmit".
+Die Anleitung beschreibt die Installation auf einem Debian-/Ubuntusystem im Heimatverzeichnis unter ".opensubmit". Die Installationsumgebung kann selbstverständlich auch an anderen Orten erstellt werden.
 
 .. code-block:: sh
 
     # notwendige Packete installieren
     sudo apt-get install python3-pip python3-venv
 
-    # virtualenv-Pfad erzeugen - Der Pfad darf selbstverständlich variieren
+    # virtualenv-Pfad erzeugen
     python3 -m venv ~/.opensubmit
     
     # virtualenv aktivieren
     source ~/.opensubmit/bin/activate
 
     # opensubmit installieren
-    pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
+    pip3 install 01_install/*.whl
 
     # virtualenv wieder deaktivieren
     deactivate
