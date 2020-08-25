@@ -6,6 +6,7 @@ OpenSubmit-Exec-GI Howto
 Dieses Howto beschreibt die Nutzung des Validators der `OpenSubmit <https://github.com/troeger/opensubmit>`_-Modifikation `OpenSubmit-GI <https://github.com/mGrapf/opensubmit-gi>`_.
 
 Bitte laden Sie sich dazu die Beispieldateien herunter und wechseln Sie in das entsprechende Verzeichnis.
+Alle Dateien sind möglichst einfach gehalten, um die Verwendung des lokalen Validators leicht zu verstehen.
 
 .. code-block:: sh
     
@@ -60,8 +61,9 @@ Variante 3 ist wäre eher für eine permanente Installation zu empfehlen. Altern
     pip3 install --upgrade git+https://github.com/mgrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor   # opensubmit installieren
 
 
-Aufgabe 1 - Statische Ausgaben
+Test 1 - Statische Ausgaben
 -----------------------------
+``opensubmit-exec test 02_example_submission``
 
 Der lokale Test des Validators kann mit "opensubmit-exec test <dir>". Als Parameter muss diesem ein Verzeichnis mitgegeben werden, welches mindestens die Datei "validator_example.cpp" enthält. Im ersten Beispiel ist dies ein einfaches Hello-World-Programm. 
 Theoretisch reicht dies dem Validator bereits. Wenn dieser keine Studentenabgabe "submission.cpp" im Verzeichnis findet, wird er alternativ die Ausgabe der Beispieldatei mit sich selbst vergleichen. 
@@ -94,7 +96,7 @@ Probieren wir es aus:
 
 .. code-block:: sh
 
-    opensubmit-exec test 01_validator_example
+    opensubmit-exec test 02_example_submission
     ...
     ...
     ...
@@ -102,8 +104,9 @@ Probieren wir es aus:
     
 Wichtig ist am Ende der ErrorCode 0, bzw. die Nachricht ('Message', 'All tests passed. Awesome!'), welche später dem Studenten gezeigt wird.
 
-Aufgabe 2 - Variable Eingaben/Ausgaben
+Test 2 - Variable Eingaben/Ausgaben
 --------------------------------------
+``opensubmit-exec test 03_example_config``
 
 Dieses Mal soll der Student einen einfachen Taschenrechner programmieren. Dazu befindet sich im Verzeichnis eine Datei "aufgabenstellung.cpp". Diese wird vom Validator ignoriert, kann aber für den Studenten hilfreich sein, da bereits Code-Schnipsel mit fertig formatierten Ausgaben enthalten sind. Für den Vergleichstest ist ausschließlich die submission.cpp und alle Dateien, die mit "validator\_" beginnen relevant.
 
@@ -124,8 +127,9 @@ In dieser Aufgabe wird keine statische Ausgabe verlangt. Um verschiedene Eingabe
 
 
 
-Aufgabe 3 - Funktionen/Klassen
+Test 3 - Funktionen/Klassen
 ------------------------------
+``opensubmit-exec test 04_example_validator_main``
 
 Soll der Funktionen oder Klassen programmiert werden, so können diese auch unabhängig der vom Studenten abgegebenen main-Funktion getestet werden. Stattdessen können Sie eine weitere Datei anlegen, welche die main-Funktion und ggf. weiteren Code beinhaltet. Diese Datei heißt validator_main.cpp. Wird diese Datei verwendet, so muss auch die Konfiguration in dieser erfolgen. Die Möglichkeiten der Konfiguration werden im nächsten Kapitel behandelt.
 
