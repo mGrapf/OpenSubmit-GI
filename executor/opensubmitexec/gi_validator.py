@@ -45,11 +45,6 @@ def validate(job):
 		DEFAULT_CONFIG = '''
 		[CONFIG]
 		TEST_CASE_0 = 
-		TEST_CASE_1 =
-		TEST_CASE_2 = 
-		TEST_CASE_3 = 
-		TEST_CASE_4 = 
-		TEST_CASE_5 = 
 		TEST_CASE_N =
 		N_TEST_CASES = 1
 		RANDOM_MIN = 0
@@ -57,11 +52,11 @@ def validate(job):
 		RANDOM_FLOAT = 0
 		RECURSION = FALSE
 		ALLOW_LIBRARIES =
-		ALLOW_MAIN = FALSE
-		REMOVE_MAIN = FALSE
 		SEPARATOR = '\a'
 		COMPARE_ALL = FALSE
 		EXTRA_COMPILATION = FALSE
+		COMPARE_CASE_SENSITIVE = FALSE
+		COMPARE_WHITE_SPACE = FALSE
 		'''
 		config = ConfigParser()
 		config.read_string(DEFAULT_CONFIG)
@@ -87,10 +82,12 @@ def validate(job):
 		dconfig['random_float'] = config.getint('CONFIG', 'random_float')
 		dconfig['recursion'] = config.getboolean('CONFIG', 'recursion')
 		dconfig['allow_libraries'] = config.get('CONFIG', 'allow_libraries')
-		dconfig['allow_main'] = config.getboolean('CONFIG', 'allow_main')
-		dconfig['remove_main'] = config.getboolean('CONFIG', 'remove_main')
+		dconfig['compare_all'] = config.getboolean('CONFIG', 'compare_all')
 		dconfig['compare_all'] = config.getboolean('CONFIG', 'compare_all')
 		dconfig['extra_compilation'] = config.getboolean('CONFIG', 'extra_compilation')
+		dconfig['compare_case_sensitive'] = config.getboolean('CONFIG', 'compare_case_sensitive')
+		dconfig['compare_white_space'] = config.getboolean('CONFIG', 'compare_white_space')
+		
 		return dconfig
 	config = readConfig(main)
 	
@@ -115,8 +112,7 @@ def validate(job):
 	example = remove_comments(example)
 	submission = remove_comments(submission)
 
-
-	""" Rekursion """
+	""" ggf. main-Funktion entfernen """
 	def remove_main(data: str) -> str:
 		pos = re.search("int(\n| )+main(\n| )*[(].*[)](\n| )*{",data)
 		if pos:
@@ -133,39 +129,18 @@ def validate(job):
 				i+=1
 			data = s1 + s2[i:]
 		return data
-	if config['recursion']:
-		tmp_submission = remove_main(submission)
-		if re.search("for *(.*;.*;.*)",submission) or re.search("while *(.+)",submission):
-			job.send_fail_result("Du hast Schleifen verwendet!", "Student used loops.")
-
-	""" main-Funktion umbenennen """
-	logger.debug("::: DEBUG: MAIN-TEST")
 	if fname_main and re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',main):
-		logger.debug("::: DEBUG: MAIN-ERSETZEN")
-		example = re.sub('int(\n| )+main(\n| )*[(].*[)](\n| )*{','int main_renamed(int argc, char *argv[]){',example)
-		submission = re.sub('int(\n| )+main(\n| )*[(].*[)](\n| )*{','int main_renamed(int argc, char *argv[]){',submission)
-	"""
-	# main-Funktion entfernen
-	def remove_main(data: str) -> str:
-		pos = re.search("int(\n| )+main(\n| )*[(].*[)](\n| )*{",data)
-		if pos:
-			pos = pos.span()
-			s1 = data[:pos[0]]
-			s2 = data[pos[1]:]
-			i = 0
-			n = 1
-			while(n):
-				if s2[i] == '{':
-					n += 1
-				elif s2[i] == '}':
-					n -= 1
-				i+=1
-			data = s1 + s2[i:]
-		return data
-	if config['remove_main']:
-		example = remove_main(example)
-		submission = remove_main(submission)
-	"""
+		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',example):
+			logger.debug("::: remove main() from example")
+			example = remove_main(example)
+		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',submission):
+			logger.debug("::: remove main() from submission")
+			submission = remove_main(submission)
+	
+	""" Rekursion """
+	if config['recursion']:
+		if re.search("for *[(].*;.*;.*[)]",submission) or re.search("while *[(].+[)]",submission):
+			job.send_fail_result("Du hast Schleifen verwendet!", "Student used loops.")
 
 	""" iostream vorbereiten """
 	def prepare_iostream(data: str) -> str:
@@ -211,52 +186,46 @@ def validate(job):
 			f.write(main)
 		job.run_compiler(compiler=GPP, inputs=[fname_main], output='submission')
 	
-	# Fuehre das Programm mehrmals mit entsprechenden cases aus
-	def createTests(config) -> str:
+	""" create test-cases """
+	def createTests(config : {}) -> [str]:
 		seed(urandom(100))
-		def insertRandom(case : str) -> str:
-			s = ""
-			for c in case.split(' '):
-				if re.search("[^ 0123456789*R]", c):
-					s+=c+' '
-					continue
-				if c == '':
-					continue
-				if 'R' in c:
-					if '*R' in c:
-						n = int(c.replace('*R',''))
-					else:
-						n = 1
-					for r in range(0,n):
-						a = uniform(config['random_min'],config['random_max'])
-						if config['random_float'] == 0:
-							s+=str((int(a)))+' '
-						else:
-							s+=str(round(a,config['random_float']))+' '
-				else:
-					s+=c+' '
-			return s
-		tests= []
-		if config['test_case_0']:
-			tests.append(insertRandom(config['test_case_0']))
-		if config['test_case_1']:
-			tests.append(insertRandom(config['test_case_1']))
-		if config['test_case_2']:
-			tests.append(insertRandom(config['test_case_2']))
-		if config['test_case_3']:
-			tests.append(insertRandom(config['test_case_3']))
-		if config['test_case_4']:
-			tests.append(insertRandom(config['test_case_4']))
-		if config['test_case_5']:
-			tests.append(insertRandom(config['test_case_5']))
-		if config['test_case_n']:
+		def insertRandom(case : str, tests : []) -> [str]: # Replace $RANDOM with random numbers
+			if not case:
+				return tests
+			def createRandom(n : int, s = '') -> str: # Generate a random number n times
+				for r in range(0,n):
+					random = uniform(config['random_min'],config['random_max'])
+					s+=str(round(random,config['random_float']))+' '				
+				if config['random_float'] == 0:
+					s=s.replace('.0','')
+				return s[:-1]
+			if re.search("[^\d][\*]\$RANDOM", case):
+				logger.error("::: The configuration may be incorrect: Please check $RANDOM!")
+				job.send_fail_result("Der Validator ist fehlerhaft konfiguriert!","Validator fehlerhaft konfiguriert: $RANDOM wurde falsch geschrieben!")
+				quit(0)
+			for found in re.findall("\d+\*\$RANDOM", case):
+				case = case.replace(found,createRandom(int(found[:-8])),1)
+			for found in re.findall('\$RANDOM',case):
+				case = case.replace(found,createRandom(1),1)
+			return tests.append(case)
+		testcases= [] # create a test-list
+		for key, value in config.items(): # read test-cases in config
+			if 'test_case_' in key and key != 'test_case_n':
+				insertRandom(value,testcases)
+		if config['test_case_n']: # finally read test-case-n in config
 			for n in range(0,config['n_test_cases']):
-				tests.append(insertRandom(config['test_case_n']))
-		if tests == []:
-			print("\nKEINE TESTS\n")
+				insertRandom(config['test_case_n'],testcases)
+		if testcases == []:
+			logger.debug("::: No test-config found")
 			return [' ']
-		return tests
-	testcases = createTests(config)
+		return testcases
+		
+	
+		
+		
+	# Fuehre das Programm mehrmals mit entsprechenden cases aus
+	testcases = createTests(config)	
+	
 	for test in testcases:
 	
 		# Programme ausführen
@@ -275,9 +244,7 @@ def validate(job):
 		# Exit-Codes vergleichen  
 		if exit_code_example != exit_code_submission:
 			job.send_fail_result("Dein Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nDein Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Deine Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
-			return
-		
-		
+			return	
 		
 		if re.sub('\s','',output_example.replace(config['separator'],'')) == "":
 			job.send_fail_result("Validator-Fehler - Der Test erzeugt keine Ausgabe!", "Der Test erzeugt keine Ausgabe!")
@@ -286,48 +253,47 @@ def validate(job):
 			job.send_fail_result("Das Programm erzeugt keine Ausgabe!")
 			return
 		
-		
 
-		#print("\nDEBUG: VERGLEICH EXAMPLE:")
-		#print(re.sub('\s','',output_example))
-		#print("\nDEBUG: VERGLEICH SUBMISSION:")
-		#print(re.sub('\s','',output_submission))
-		
-		
 		# Ergebnisse der einzelnen Tests vergleichen
 		output_example = output_example.split("\n",1)[1].split(config['separator'])
 		output_submission = output_submission.split("\n",1)[1].split(config['separator'])
 		
-		
-		
 		output = list(zip(output_example,output_submission))
 		
 		for output_example, output_submission in output:
+			original_example = output_example
+			original_submission = output_submission
+			
+					
+			""" Output bearbeiten """
+			if not config['compare_case_sensitive']:
+				output_example = output_example.lower()
+				output_submission = output_submission.lower()
+			
+			if not config['compare_white_space']:
+				output_example = re.sub('\s','',output_example)
+				output_submission = re.sub('\s','',output_submission)
 			
 			
-
+			print("### OUTPUT EXAMPLE: ###")
+			print(output_example)
 			print("### OUTPUT SUBMISSION: ###")
 			print(output_submission)
+			print('\n')
 						
 			# Output vergleichen
 			try:
 				if config['compare_all']:	# es werden nur Leerzeichen entfernt
-					print("\nDEBUG: VERGLEICH EXAMPLE:")
-					print(re.sub('\s','',output_example))
-					print("\nDEBUG: VERGLEICH SUBMISSION:")
-					print(re.sub('\s','',output_submission))
-					if re.sub('\s','',output_example) != re.sub('\s','',output_submission):
+					if output_example != output_submission:
 						raise
 				else:
 					i = 0	# zusätzliche Zeichen der Abgabe werden ignoriert
-					for c in re.sub('\s','',output_example):
+					for c in output_example:
 						while c != output_submission[i]:
 							i += 1
 						i += 1
 			except:
-				print("\n\n### OUTPUT EXAMPLE: ###")
-				print(output_example)
-				job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(output_example, output_submission), "wrong output")
+				job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
 				return
 			
 	""" Tests waren erfolgreich. Kompiliere optional erneut """
@@ -339,5 +305,6 @@ def validate(job):
 			hinweis = "\n\nBut the code isn't perfect yet!\n\Try: 'g++ -Wall "+fname_submission+'\''
 	
 	# Alle Tests erfolgreich
+	print("Alle Tests erfolgreich!")
 	job.send_pass_result('All tests passed. Awesome!'+hinweis, "All tests passed.\nOutput:\n\n"+output_submission)
 

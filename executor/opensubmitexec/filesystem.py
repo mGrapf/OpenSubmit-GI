@@ -7,7 +7,7 @@ import tarfile
 import os
 import tempfile
 import shutil
-
+import glob
 from .exceptions import JobException
 
 import logging
@@ -15,6 +15,11 @@ logger = logging.getLogger('opensubmitexec')
 
 
 def unpack_if_needed(destination_path, fpath):
+    
+    print("UNPACK_IF_NEEDED")
+    print(destination_path)
+    print(fpath)
+    
     '''
     fpath is the fully qualified path to a single file that
     might be a ZIP / TGZ archive.
@@ -201,6 +206,33 @@ def prepare_working_directory(job, submission_path, validator_path):
         info_tutor = "Error: Directories are not allowed in the validator archive."
         logger.error(info_tutor)
         raise JobException(info_student=info_student, info_tutor=info_tutor)
+    
+    """ EIgene version """
+    print("DEBUG: EIGENE VERSION VALIDATOR_GI")
+    print(job.working_dir+os.sep +'validator_example*.cpp')
+    example = glob.glob(job.working_dir + os.sep + 'validator_example*.cpp')
+    if example:
+
+        if not os.path.exists(job.validator_script_name):
+            
+            
+            assert(len(example) == 1)
+            example=example[0]
+            
+            print("DEBUG!!!!!!!! VALIDATOR_EXAMPLE.CPP GEFUNDEN!: "+job.working_dir+os.sep +example)
+            
+            # validator_example.****.cpp umpenennen in validator_example.cpp
+            shutil.move(example, job.working_dir+os.sep +"validator_example.cpp")
+            
+                
+            
+            
+            
+            validator = job.working_dir + os.sep +'validator.py'
+            shutil.copy(os.path.dirname(os.path.abspath(__file__))+'/gi_validator.py', validator)
+            print("DEBUG: GI_VALIDATOR kopiert!!!")
+    """ Ende eigene Version """
+    
 
     if not os.path.exists(job.validator_script_name):
         if did_unpack:

@@ -1,25 +1,26 @@
 #!/bin/bash
 set -e
+CONFIG_FILE=/etc/opensubmit/executor.ini
 
-# Docker image startup script
-#
-# Expects the following environment variables:
-#
-# OPENSUBMIT_SERVER_URL: URL of the server installation
+if [ ! -f $CONFIG_FILE ]; then
+	# create config
+	if [ ! $OPENSUBMIT_SERVER_URL ]; then
+		OPENSUBMIT_SERVER_URL=http://localhost
+	fi
+	opensubmit-exec configcreate $OPENSUBMIT_SERVER_URL
+	ln -s $CONFIG_FILE /config
+	
+	# test config
+	while ! opensubmit-exec configtest; do
+		echo "The configuration appears to be incorrect."
+		echo "Please adjust the configuration with:  \"docker exec -ti [CONTAINERNAME] nano config\""
+		TIME_A=$(stat -c %Y $CONFIG_FILE)
+		TIME_B=$TIME_A
+		until [ $TIME_A -ne $TIME_B ]; do
+			TIME_B=$(stat -c %Y $CONFIG_FILE)
+			sleep 1
+		done
+	done
+fi
 
-# (Re-)create OpenSubmit configuration from env variables
-opensubmit-exec configcreate $OPENSUBMIT_SERVER_URL
-
-echo "Waiting for web server to start ..."
-# Wait for web server to come up
-until $(curl --output /dev/null --silent --head --fail $OPENSUBMIT_SERVER_URL); do
-    echo '... still waiting ...'
-    sleep 5
-done
-echo "Web server started."
-
-# Perform config test, triggers also registration
-/usr/local/bin/opensubmit-exec configtest
-
-# Run "opensubmit-exec run" every minute
-cron -f
+opensubmit-exec run

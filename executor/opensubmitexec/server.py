@@ -21,20 +21,27 @@ import logging
 logger = logging.getLogger('opensubmitexec')
 
 
-def fetch(url, fullpath):
+def fetch(url, path):
 	'''
 	Fetch data from an URL and save it under the given target name.
 	'''
-	logger.debug("Fetching %s from %s" % (fullpath, url))
+	logger.debug("Fetching %s from %s" % (path, url))
 
 	try:
 		tmpfile, headers = urlretrieve(url)
+		fname = headers['Content-Disposition'][22:-1]
+		print("DEBUG: URLRETRIEVE_FILNAME: "+fname)
+		
+		fullpath = path+fname
+		print("DEBUG: FULLPATH: "+fullpath)
+		
 		if os.path.exists(fullpath):
 			os.remove(fullpath)
 		shutil.move(tmpfile, fullpath)
 	except Exception as e:
 		logger.error("Error during fetching: " + str(e))
 		raise
+	return fullpath
 
 def send_post(config, urlpath, post_data):
 	'''
@@ -50,6 +57,8 @@ def send_post(config, urlpath, post_data):
 		urlopen(url, post_data)
 	except Exception as e:
 		logger.error('Error while sending data to server: ' + str(e))
+		return 1
+	return 0
 
 
 def send_hostinfo(config):
@@ -65,7 +74,9 @@ def send_hostinfo(config):
 				 ("Secret", config.get("Server", "secret"))
 				 ]
 
-	send_post(config, "/machines/", post_data)
+	if not send_post(config, "/machines/", post_data):
+		return 1
+	return 0
 
 
 def compatible_api_version(server_version):
@@ -148,15 +159,37 @@ def fetch_job(config):
 			target.write(result.read())
 		assert(os.path.exists(submission_fname))
 
+		"""
 		# Store validator package in working directory
 		validator_fname = job.working_dir + 'download.validator'
 		fetch(job.validator_url, validator_fname)
+		"""
+		""" Eigene Variante """
+		try:
+			validator_fname = fetch(job.validator_url, job.working_dir)
+		except:
+			validator_fname = job.working_dir + 'download.validator'
+			fetch(job.validator_url, validator_fname)
+		
+		
+		""" Ende Eigene Variante """
 
 		try:
 			prepare_working_directory(job, submission_fname, validator_fname)
 		except JobException as e:
 			job.send_fail_result(e.info_student, e.info_tutor)
 			return None
+		
+		""" Eigene Variante """
+		#if glob.glob(job.working_dir + os.sep + 'validator_example.cpp') and not glob.glob(job.working_dir + os.sep + 'validator.*'):
+		#	validator = job.working_dir + os.sep +'validator.py'
+		#	shutil.copy(os.path.dirname(os.path.abspath(__file__))+'/gi_validator.py', validator)
+			
+
+		""" Ende Eigene Variante """
+		
+		
+		
 		logger.debug("Got job: " + str(job))
 		return job
 	except HTTPError as e:

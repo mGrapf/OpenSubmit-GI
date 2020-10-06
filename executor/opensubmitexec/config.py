@@ -17,6 +17,7 @@ logger = logging.getLogger('opensubmitexec')
 
 DEFAULT_SETTINGS = {
     'Execution': {
+        'repeat_time': '10',                     # Searches for new jobs every x seconds
         'cleanup': 'True',                       # Override for disabling file cleanup
         'message_size': '10000',                 # Override for result text limit
         'timeout': '3600',                       # Override for execution timeout
@@ -59,6 +60,9 @@ secret={secret}
 uuid={uuid}
 
 [Execution]
+
+# Checks every x seconds to see if there are new submissions on the server.
+repeat_time={repeat_time}
 
 # Place where downloaded archives are extracted, compiled and validated
 # The executor will create sub-directories per fetched job
