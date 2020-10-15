@@ -144,13 +144,7 @@ def fetch_job(config):
 		if "Timeout" in headers:
 			job.timeout = int(headers["Timeout"])
 		if "PostRunValidation" in headers:
-			# Ignore server-given host + port and use the configured one instead
-			# This fixes problems with the arbitrary Django LiveServer port choice
-			# It would be better to return relative URLs only for this property,
-			# but this is a Bernhard-incompatible API change
-			from urllib.parse import urlparse
-			relative_path = urlparse(headers["PostRunValidation"]).path
-			job.validator_url = config.get("Server", "url") + relative_path
+			job.validator_url = headers["PostRunValidation"]
 		job.working_dir = create_working_dir(config, job.sub_id)
 
 		# Store submission in working directory
