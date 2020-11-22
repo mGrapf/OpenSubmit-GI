@@ -1,9 +1,0 @@
-<footer class="footer">
-    v{{opensubmit_version}}
-    {% if user.is_authenticated and user.is_staff %}
-    &nbsp;&nbsp; <a href="{% url 'teacher:index' %}">Teacher backend</a>
-    {% endif %}
-    &nbsp;&nbsp;<a href="http://docs.open-submit.org">Docs</a>
-    &nbsp;&nbsp;<a href="{% url 'impress' %}">Impress</a>
-    &nbsp;&nbsp;<a href="{% url 'privacy' %}">Privacy Policy</a>
-</footer>
