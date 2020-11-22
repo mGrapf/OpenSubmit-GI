@@ -30,7 +30,6 @@ bumpversion:
 # Clean temporary files
 clean:
 	rm -fr  executor/build
-	rm -fr  executor/dist
 	rm -fr  executor/*egg-info
 	rm -f  ./.coverage
 	find . -name "*.bak" -delete
