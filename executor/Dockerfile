@@ -4,9 +4,9 @@ FROM ubuntu:18.04
 ENV LANGUAGE=de_DE LANG=de_DE.utf8 LC_ALL=de_DE.utf8 DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1
 
 RUN apt-get update \
-    && apt-get install -y locales python3 python3-pip cron gcc make autoconf curl default-jdk nano \
+    && apt-get install -y apt-utils locales python3 python3-pip cron gcc make autoconf curl default-jdk nano \
     && rm -rf /var/lib/apt/lists/* \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+    && localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8
 
 
 COPY requirements.txt /

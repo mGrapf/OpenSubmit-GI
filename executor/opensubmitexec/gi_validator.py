@@ -354,5 +354,5 @@ def validate(job):
 	
 	# Alle Tests erfolgreich
 	print("Alle Tests erfolgreich!")
-	job.send_pass_result('All tests passed. Awesome!'+hinweis, "All tests passed.\nOutput:\n\n"+original_submission)
+	job.send_pass_result('All tests passed. Awesome!'+hinweis, "All tests passed.")
 
