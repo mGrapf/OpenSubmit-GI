@@ -64,6 +64,7 @@ def console_script():
 
     # get config-file
     config_fname = CONFIG_FILE_DEFAULT
+    print("DEBUG: CONFIG = "+config_fname+"\n")
     for index, entry in enumerate(sys.argv):
         if entry == "-c" and index < len(sys.argv)-1:
             config_fname= sys.argv[index + 1]

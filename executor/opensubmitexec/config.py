@@ -68,6 +68,9 @@ repeat_time={repeat_time}
 # The executor will create sub-directories per fetched job
 directory={directory}
 
+# Run as a different user. This is only possible if opensubmit was started as
+# root. "0" means no change.
+
 # Delete all student files after the executor did its work.
 # Disable this to debug problems that are only reproducible by running the
 # downloaded student code manually.
@@ -192,6 +195,7 @@ def create_config(config_fname, override_url=None):
         settings['url'] = override_url
 
     # Create fresh config file, including new UUID
-    with open(config_fname, 'wt') as config:
+	# old: with open(config_fname, 'wt') as config:
+    with os.fdopen(os.open(config_fname, os.O_WRONLY | os.O_CREAT, 0o660), 'w') as config:
         config.write(DEFAULT_FILE_CONTENT.format(**settings))
     return True

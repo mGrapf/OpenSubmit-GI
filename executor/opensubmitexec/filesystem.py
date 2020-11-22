@@ -16,10 +16,6 @@ logger = logging.getLogger('opensubmitexec')
 
 def unpack_if_needed(destination_path, fpath):
     
-    print("UNPACK_IF_NEEDED")
-    print(destination_path)
-    print(fpath)
-    
     '''
     fpath is the fully qualified path to a single file that
     might be a ZIP / TGZ archive.
@@ -208,9 +204,9 @@ def prepare_working_directory(job, submission_path, validator_path):
         raise JobException(info_student=info_student, info_tutor=info_tutor)
     
     """ EIgene version """
-    print("DEBUG: EIGENE VERSION VALIDATOR_GI")
-    print(job.working_dir+os.sep +'validator_example*.cpp')
-    example = glob.glob(job.working_dir + os.sep + 'validator_example*.cpp')
+    #print("DEBUG: EIGENE VERSION VALIDATOR_GI")
+    #print(job.working_dir+os.sep +'validator_example*.cpp')
+    example = glob.glob(job.working_dir + os.sep + 'validator_example.cpp')
     if example:
 
         if not os.path.exists(job.validator_script_name):
@@ -219,7 +215,7 @@ def prepare_working_directory(job, submission_path, validator_path):
             assert(len(example) == 1)
             example=example[0]
             
-            print("DEBUG!!!!!!!! VALIDATOR_EXAMPLE.CPP GEFUNDEN!: "+job.working_dir+os.sep +example)
+            #print("DEBUG!!!!!!!! VALIDATOR_EXAMPLE.CPP GEFUNDEN!: "+job.working_dir+os.sep +example)
             
             # validator_example.****.cpp umpenennen in validator_example.cpp
             shutil.move(example, job.working_dir+os.sep +"validator_example.cpp")
@@ -230,7 +226,7 @@ def prepare_working_directory(job, submission_path, validator_path):
             
             validator = job.working_dir + os.sep +'validator.py'
             shutil.copy(os.path.dirname(os.path.abspath(__file__))+'/gi_validator.py', validator)
-            print("DEBUG: GI_VALIDATOR kopiert!!!")
+            #print("DEBUG: GI_VALIDATOR kopiert!!!")
     """ Ende eigene Version """
     
 
