@@ -226,8 +226,11 @@ def validate(job):
 			for n in range(0,config['n_test_cases']):
 				insertRandom(config['test_case_n'],testcases)
 		if testcases == []: # if no tests defined -> test with random numbers
+			defaultinput = True
 			for n in range(0,3):
 				insertRandom("$100*RANDOM",testcases)
+		else:
+			defaultinput = False
 		return testcases
 		
 	
@@ -341,7 +344,10 @@ def validate(job):
 					if output_example != output_submission:
 						raise
 			except:
-				job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n###Eingabe: "+test+"\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
+				if defaultinput == True:
+					job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
+				else:
+					job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n###Eingabe: "+test+"\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
 				return
 			
 	""" Tests waren erfolgreich. Kompiliere optional erneut """
