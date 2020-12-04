@@ -29,19 +29,17 @@ def fetch(url, path):
 
 	try:
 		tmpfile, headers = urlretrieve(url)
-		fname = headers['Content-Disposition'][22:-1]
-		print("DEBUG: URLRETRIEVE_FILNAME: "+fname)
-		
-		fullpath = path+fname
-		print("DEBUG: FULLPATH: "+fullpath)
-		
+		fname = headers['Content-Disposition'].split('filename=')[1].replace('\"','')	# 2020 Denz: read filename from header
+		if fname.rfind('.') != -1:
+			fname = 'validator.'+fname.rsplit('.',1)[1]
+		fullpath = path + fname
 		if os.path.exists(fullpath):
 			os.remove(fullpath)
 		shutil.move(tmpfile, fullpath)
 	except Exception as e:
 		logger.error("Error during fetching: " + str(e))
 		raise
-	return fullpath
+	return fullpath														# 2020 Denz: return path with filename
 
 def send_post(config, urlpath, post_data):
 	'''
@@ -57,7 +55,7 @@ def send_post(config, urlpath, post_data):
 		urlopen(url, post_data)
 	except Exception as e:
 		logger.error('Error while sending data to server: ' + str(e))
-		return 1
+		return -1														# 2020 Denz: add return for docker-entry.sh
 	return 0
 
 
@@ -74,9 +72,7 @@ def send_hostinfo(config):
 				 ("Secret", config.get("Server", "secret"))
 				 ]
 
-	if not send_post(config, "/machines/", post_data):
-		return 1
-	return 0
+	return send_post(config, "/machines/", post_data)					# 2020 Denz: add a return for docker-entry.sh
 
 
 def compatible_api_version(server_version):
@@ -144,7 +140,13 @@ def fetch_job(config):
 		if "Timeout" in headers:
 			job.timeout = int(headers["Timeout"])
 		if "PostRunValidation" in headers:
-			job.validator_url = headers["PostRunValidation"]
+			# Ignore server-given host + port and use the configured one instead
+			# This fixes problems with the arbitrary Django LiveServer port choice
+			# It would be better to return relative URLs only for this property,
+			# but this is a Bernhard-incompatible API change
+			from urllib.parse import urlparse
+			relative_path = urlparse(headers["PostRunValidation"]).path
+			job.validator_url = config.get("Server", "url") + relative_path
 		job.working_dir = create_working_dir(config, job.sub_id)
 
 		# Store submission in working directory
@@ -153,37 +155,15 @@ def fetch_job(config):
 			target.write(result.read())
 		assert(os.path.exists(submission_fname))
 
-		"""
 		# Store validator package in working directory
-		validator_fname = job.working_dir + 'download.validator'
-		fetch(job.validator_url, validator_fname)
-		"""
-		""" Eigene Variante """
-		try:
-			validator_fname = fetch(job.validator_url, job.working_dir)
-		except:
-			validator_fname = job.working_dir + 'download.validator'
-			fetch(job.validator_url, validator_fname)
-		
-		
-		""" Ende Eigene Variante """
+		validator_fname = fetch(job.validator_url, job.working_dir)		# 2020 Denz: Path/Filename from header
 
 		try:
 			prepare_working_directory(job, submission_fname, validator_fname)
 		except JobException as e:
 			job.send_fail_result(e.info_student, e.info_tutor)
 			return None
-		
-		""" Eigene Variante """
-		#if glob.glob(job.working_dir + os.sep + 'validator_example.cpp') and not glob.glob(job.working_dir + os.sep + 'validator.*'):
-		#	validator = job.working_dir + os.sep +'validator.py'
-		#	shutil.copy(os.path.dirname(os.path.abspath(__file__))+'/gi_validator.py', validator)
-			
-
-		""" Ende Eigene Variante """
-		
-		
-		
+		switch_owner_of_working_directory(job)							# 2020 Denz
 		logger.debug("Got job: " + str(job))
 		return job
 	except HTTPError as e:
@@ -195,7 +175,7 @@ def fetch_job(config):
 		return None
 
 
-def fake_fetch_job(config, src_dir):
+def fake_fetch_job(config, src):
 	'''
 	Act like fetch_job, but take the validator file and the student
 	submission files directly from a directory.
@@ -204,35 +184,45 @@ def fake_fetch_job(config, src_dir):
 
 	Check also cmdline.py.
 	'''
-	logger.debug("Creating fake job from " + src_dir)
+	
 	from .job import Job
 	job = Job(config, online=False)
 	job.working_dir = create_working_dir(config, '42')
-	for fname in glob.glob(src_dir + os.sep + '*'):
-		logger.debug("Copying {0} to {1} ...".format(fname, job.working_dir))
-		shutil.copy(fname, job.working_dir)
-	   
-	
-	""" Ergaenzung fuer Grundlagen Informatik """
-	if glob.glob(job.working_dir + os.sep + 'validator_example.cpp') and not glob.glob(job.working_dir + os.sep + 'validator.*'):
-		validator = job.working_dir + os.sep +'validator.py'
-		shutil.copy(os.path.dirname(os.path.abspath(__file__))+'/gi_validator.py', validator)
-		submission = glob.glob(job.working_dir + os.sep + 'submission.cpp')
-		if not submission:
-			logger.debug("::: submission.cpp not found -> copy validator_example.cpp")
-			shutil.copy(job.working_dir + os.sep +'validator_example.cpp', job.working_dir + os.sep +'submission.cpp')
-		job.student_files = ['submission.cpp']
+
+	# copy files
+	if os.path.isdir(src[0]):
+		src_dir = src[0]	
+		for fname in glob.glob(src_dir + os.sep + '*'):
+			if os.path.isfile(fname):
+				logger.debug("Copying {0} to {1} ...".format(fname, job.working_dir))
+				shutil.copy(fname, job.working_dir)		
 	else:
-		""" Ende Ergaenzung """
+		for src_file in src:
+			logger.debug("Copying {0} to {1} ...".format(src_file, job.working_dir))
+			if not os.path.isfile(src_file):
+				logger.error("Error: File not found")
+				return
+			shutil.copy(src_file, job.working_dir)
+			if not 'submission.cpp' in src:
+				if os.path.isfile('submission.cpp'):
+					logger.debug("Copying {0} to {1} ...".format('submission.cpp', job.working_dir))
+					shutil.copy('submission.cpp', job.working_dir+os.sep)
+				else:
+					logger.debug("Copying {0} as submission.cpp to {1} ...".format(src_file, job.working_dir))
+					shutil.copy(src[0], job.working_dir+os.sep+'submission.cpp')
+			
 		
-		case_files = glob.glob(job.working_dir + os.sep + '*')
-		assert(len(case_files) == 2)
-		if os.path.basename(case_files[0]) in ['validator.py', 'validator.zip']:
-			validator = case_files[0]
-			submission = case_files[1]
+	case_files = os.listdir(job.working_dir)
+	if 'validator.py' in case_files or 'validator.zip' in case_files:
+		if len(case_files) != 2:
+			logger.error("Error: If the folder contains the validator.py/validator.zip, the folder may only contain 2 files.")
+			return
+		if case_files[0] in ['validator.py', 'validator.zip']:
+			validator = job.working_dir+case_files[0]
+			submission = job.working_dir+case_files[1]
 		else:
-			validator = case_files[1]
-			submission = case_files[0]
+			validator = job.working_dir+case_files[1]
+			submission = job.working_dir+case_files[0]
 		logger.debug('{0} is the validator.'.format(validator))
 		logger.debug('{0} the submission.'.format(submission))
 		try:
@@ -242,5 +232,45 @@ def fake_fetch_job(config, src_dir):
 		except JobException as e:
 			job.send_fail_result(e.info_student, e.info_tutor)
 			return None
+		
+	else:
+		
+		cpp_files = []
+		for file in case_files:
+			if file.endswith(".cpp"):
+				cpp_files.append(file)
+		
+		job.student_files = None
+		job.validator_files = None
+		job.gi_validator = True
+		if 'submission.cpp' in cpp_files:
+			job.student_files = ['submission.cpp']
+			logger.debug("Student files: {0}".format(job.student_files))
+			cpp_files.remove('submission.cpp')
+		
+		if len(cpp_files) == 1:
+			job.validator_files = cpp_files
+		elif len(cpp_files) == 2:
+			for file in cpp_files:
+				with open (job.working_dir+file, "r") as cpp:
+					code = cpp.read()
+					if "[CONFIG]" in code and ";EOF" in code:
+						logger.debug("The cpp-configuration is in "+file)
+						job.validator_files = [file]
+						cpp_files.remove(file)
+						job.validator_files = cpp_files + job.validator_files
+						break
+		if not job.validator_files:
+			logger.error("Error: No validator (*.cpp) found.")
+			return None
+		logger.debug("Validator files: {0}".format(job.validator_files))
+		
+		if not job.student_files:
+			logger.debug("No Student files found. Copying {0} to submission.cpp".format(job.validator_files[-1]))
+			shutil.copy(job.working_dir+job.validator_files[0], job.working_dir+'submission.cpp')
+			job.student_files = ['submission.cpp']
+		
+		
+	switch_owner_of_working_directory(job)						# 2020 Denz
 	logger.debug("Got fake job: " + str(job))
 	return job

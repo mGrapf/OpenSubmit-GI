@@ -149,7 +149,7 @@ class Job(InternalJob):
                           inputs=inputs,
                           output=output)
 
-    def spawn_program(self, name, arguments=[], timeout=30, exclusive=False):
+    def spawn_program(self, name, arguments=[], timeout=30, exclusive=False, echo=False):
         """Spawns a program in the working directory.
 
         This method allows the interaction with the running program,
@@ -171,7 +171,7 @@ class Job(InternalJob):
         if exclusive:
             kill_longrunning(self.config)
 
-        return RunningProgram(self, name, arguments, timeout)
+        return RunningProgram(self, name, arguments, timeout, echo)
 
     def run_program(self, name, arguments=[], timeout=30, exclusive=False):
         """Runs a program in the working directory to completion.

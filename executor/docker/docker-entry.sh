@@ -1,13 +1,19 @@
 #!/bin/bash
 set -e
-CONFIG_FILE=~/config.ini
+CONFIG_FILE=/config.ini
 
 if [ ! -f $CONFIG_FILE ]; then
+	# update opensubmit-exec
+	pip3 install --upgrade git+https://github.com/mGrapf/opensubmit-gi#egg=opensubmit-exec\&subdirectory=executor
 	# create config
 	if [ ! $OPENSUBMIT_SERVER_URL ]; then
 		OPENSUBMIT_SERVER_URL=http://localhost
 	fi
-	opensubmit-exec configcreate $OPENSUBMIT_SERVER_URL -c $CONFIG_FILE
+	if [ ! $OPENSUBMIT_SERVER_SECRET ]; then
+		opensubmit-exec configcreate $OPENSUBMIT_SERVER_URL -c $CONFIG_FILE
+	else
+		opensubmit-exec configcreate $OPENSUBMIT_SERVER_URL -s $OPENSUBMIT_SERVER_SECRET -c $CONFIG_FILE
+	fi
 	#ln -s $CONFIG_FILE /config
 	
 	# test config

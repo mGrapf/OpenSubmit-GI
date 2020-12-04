@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 
 setup(
     name = 'opensubmit-exec',
-    version = '0.0.5',
+    version = '0.9.0',
     url = 'hhttps://github.com/mGrapf/opensubmit-gi',
     license='AGPL',
     author = 'Mathias Denz',

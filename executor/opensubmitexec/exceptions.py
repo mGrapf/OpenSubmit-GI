@@ -7,6 +7,15 @@ class JobException(Exception):
         self.info_student = info_student
         self.info_tutor = info_tutor
     pass
+    
+class SecurityException(Exception):
+    '''
+    If the program detects that the student wants to
+    manipulate the validator, this exception is thrown.
+    '''
+    def __init__(self, info_student=None, info_tutor=None):
+        self.info_student = info_student
+        self.info_tutor = info_tutor
 
 
 class RunningProgramException(Exception):
