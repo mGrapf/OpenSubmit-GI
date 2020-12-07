@@ -40,41 +40,41 @@ def validate(job):
 		config = ConfigParser()
 		config.read_string('''
 		[CONFIG]
+		
+	# General Settings
 		SUBMISSION_FILENAME = 
 		FORBID_LOOPS = FALSE
 		ALLOW_LIBRARIES =
-		SEPARATOR = '\a'
-		EXTRA_COMPILATION = FALSE
-		INPUT_TIME = 0.1
-		ECHO_INPUT = TRUE
 		
+		
+	# Settings for the test creation
 		TEST_CASE_0 = 
 		TEST_CASE_N =
 		N_TEST_CASES = 1
+		
+		ECHO_INPUT = TRUE
+		INPUT_TIME = 0.1
 		
 		RANDOM_MIN = 1
 		RANDOM_MAX = 100
 		RANDOM_FLOAT = 0
 		
 		
-		COMPARE_WHITE_SPACES = FALSE
-		COMPARE_NEWLINE = FALSE
-		COMPARE_ONLY_LETTERS = FALSE
-		COMPARE_ONLY_PARTS = FALSE
-		COMPARE_LINE_BY_LINE = FALSE
-		
-		
-		
-		COMPARISON_MODE = 0
-		COMPARE_SKIP = 0
-		COMPARE_SKIP_FIRST = TRUE
-		COMPARE_ANY_ORDER = FALSE
-		COMPARE_SPACES = FALSE
-		
-		
+	# Settings for output comparison:
 		COMPARE_CASE_SENSITIVE = FALSE
 		COMPARE_ONLY_NUMBERS = FALSE
+		COMPARE_WHITESPACES = FALSE
 		
+		GROUP_LINES = FALSE
+		GROUP_WORDS = FALSE
+		
+		SKIP_LINES = FALSE
+		SKIP_WORDS = FALSE
+		SKIP_CHARACTERS = FALSE
+		
+		RANDOM_ORDER_LINES = FALSE
+		RANDOM_ORDER_WORDS = FALSE
+		RANDOM_ORDER_CHARACTERS = FALSE
 		''')
 		try:
 			pos1 = re.search("\[CONFIG\]",data).span()[0]
@@ -85,28 +85,29 @@ def validate(job):
 			logger.debug("::: Kann keine Konfiguration lesen.")
 		""" Speichere alles in Dictionary """
 		dconfig = dict(config.items('CONFIG'))
+		dconfig['submission_filename'] = config.get('CONFIG', 'submission_filename')
+		dconfig['recursion'] = config.getboolean('CONFIG', 'forbid_loops')
+		dconfig['allow_libraries'] = config.get('CONFIG', 'allow_libraries')
+		
 		dconfig['n_test_cases'] = config.getint('CONFIG', 'n_test_cases')
+		dconfig['echo_input'] = config.getboolean('CONFIG', 'echo_input')
+		dconfig['input_time'] = config.getfloat('CONFIG', 'input_time')
 		dconfig['random_min'] = config.getfloat('CONFIG', 'random_min')
 		dconfig['random_max'] = config.getfloat('CONFIG', 'random_max')
 		dconfig['random_float'] = config.getint('CONFIG', 'random_float')
-		dconfig['recursion'] = config.getboolean('CONFIG', 'forbid_loops')
-		dconfig['echo_input'] = config.getboolean('CONFIG', 'echo_input')
-		dconfig['allow_libraries'] = config.get('CONFIG', 'allow_libraries')
-		dconfig['input_time'] = config.getfloat('CONFIG', 'input_time')
-		dconfig['extra_compilation'] = config.getboolean('CONFIG', 'extra_compilation')
-		dconfig['compare_case_sensitive'] = config.getboolean('CONFIG', 'compare_case_sensitive')
-		dconfig['compare_white_space'] = config.getboolean('CONFIG', 'compare_white_spaces')
-		dconfig['compare_newline'] = config.getboolean('CONFIG', 'compare_newline')
-		dconfig['compare_only_numbers'] = config.getboolean('CONFIG', 'compare_only_numbers')
-		dconfig['compare_only_letters'] = config.getboolean('CONFIG', 'compare_only_letters')
-		dconfig['compare_only_parts'] = config.getboolean('CONFIG', 'compare_only_parts')
-		dconfig['compare_line_by_line'] = config.getboolean('CONFIG', 'compare_line_by_line')
 		
-		dconfig['comparison_mode'] = config.getint('CONFIG', 'comparison_mode')
-		dconfig['compare_skip'] = config.getint('CONFIG', 'compare_skip')
-		dconfig['compare_skip_first'] = config.getboolean('CONFIG', 'compare_skip_first')
-		dconfig['compare_any_order'] = config.getboolean('CONFIG', 'compare_any_order')
-		dconfig['compare_spaces'] = config.getboolean('CONFIG', 'compare_spaces')
+		dconfig['compare_case_sensitive'] = config.getboolean('CONFIG', 'compare_case_sensitive')
+		dconfig['compare_only_numbers'] = config.getboolean('CONFIG', 'compare_only_numbers')
+		dconfig['compare_whitespaces'] = config.getboolean('CONFIG', 'compare_whitespaces')
+		dconfig['group_lines'] = config.getboolean('CONFIG', 'group_lines')
+		dconfig['group_words'] = config.getboolean('CONFIG', 'group_words')
+		dconfig['skip_lines'] = config.getboolean('CONFIG', 'skip_lines')
+		dconfig['skip_words'] = config.getboolean('CONFIG', 'skip_words')
+		dconfig['skip_characters'] = config.getboolean('CONFIG', 'skip_characters')
+		dconfig['random_order_lines'] = config.getboolean('CONFIG', 'random_order_lines')
+		dconfig['random_order_words'] = config.getboolean('CONFIG', 'random_order_words')
+		dconfig['random_order_characters'] = config.getboolean('CONFIG', 'random_order_characters')
+	
 		return dconfig
 	config = readConfig(main)
 	
@@ -254,16 +255,11 @@ def validate(job):
 			insertRandom("$NOINPUT",testcases)
 		return testcases, default
 	
-	
 
 	# Fuehre das Programm mehrmals mit entsprechenden cases aus
 	testcases, defaulttest = createTests(config)	
-	
-	
-		
-	
 	for test in testcases:
-		
+
 		if test == "$NOINPUT":
 			exit_code_example, output_example = job.run_program('./example')
 			exit_code_submission, output_submission = job.run_program('./submission')
@@ -283,20 +279,18 @@ def validate(job):
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
 		
-		
 		# Existenz der Ausgabe prüfen
 		if re.sub('\s','',output_example) == "":
-			job.send_fail_result("Validatorfehler: Der Test erzeugt keine Ausgabe!", "Der Test erzeugt keine Ausgabe!")
+			job.send_fail_result("Validatorfehler :(", "Ihr cpp-example erzeugt keine Ausgabe!")
 			return
 		if re.sub('\s','',output_submission) == "":
-			job.send_fail_result("Das Programm erzeugt keine Ausgabe!")
+			job.send_fail_result("Ihr Programm erzeugt keine Ausgabe!")
 			return
 		
 		# Exit-Codes vergleichen  
 		if exit_code_example != exit_code_submission:
-			job.send_fail_result("Dein Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nDein Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Deine Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
+			job.send_fail_result("Ihr Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nIhr Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Ihre Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
 			return	
-		
 		
 		# Notizen suchen
 		output_notes = []
@@ -310,33 +304,22 @@ def validate(job):
 			pos1 = output_example.find("<HIDDEN>")
 			pos2 = output_example.find("</HIDDEN>")
 			output_example = output_example[:pos1]+output_example[pos2+9:]
-		
+
 		# Output vergleichen
 		original_example = output_example
 		original_submission = output_submission
-		ok,text = compare(output_example,output_submission,config)
+		ok = compare(output_example,output_submission,config)
 		if not ok:
 			if test == "$NOINPUT" or config['echo_input'] == True:
-				job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(output_example, output_submission), "wrong output")
+				job.send_fail_result("Leider erzeugt Ihr Code eine andere Ausgabe :/\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Ihre Ausgabe: ###\n{1}".format(output_example, output_submission), "wrong output")
 			else:
-				job.send_fail_result("Leider erzeugt dein Code eine andere Ausgabe :/\n\n### Eingabe: "+test+" ###\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Deine Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
+				job.send_fail_result("Leider erzeugt Ihr Code eine andere Ausgabe :/\n\n### Eingabe: "+test+" ###\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Ihre Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
 			print("##########################################")
 			print(text)
 			print("##########################################")
 			return
 
-	
-		
-		
-	""" Tests waren erfolgreich. Kompiliere optional erneut """
-	hinweis = ''
-	if config['extra_compilation']:
-		try:
-			job.run_compiler(compiler=['g++','-pthread','-Wall','-Werror','-o','{output}', '{inputs}'], inputs=[fname_submission], output='submission')
-		except Exception as e:
-			hinweis = "\n\nBut the code isn't perfect yet!\n\Try: 'g++ -Wall "+fname_submission+'\''
-	
 	# Alle Tests erfolgreich
 	print("Alle Tests erfolgreich!")
-	job.send_pass_result('All tests passed. Awesome!'+hinweis, "All tests passed.")
+	job.send_pass_result('All tests passed. Awesome!', "All tests passed.")
 	

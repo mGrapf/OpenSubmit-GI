@@ -71,11 +71,25 @@ def console_script():
 			config_fname= sys.argv[index + 1]
 			del sys.argv[index:index+2]									# 2020 Denz: remove config from sys.argv
 			break
+	# get id														# 2020 Denz: get Secret from cmd
+	user = None
+	for index, entry in enumerate(sys.argv):
+		if entry == "-u" and index < len(sys.argv)-1:
+			user = sys.argv[index + 1]
+			del sys.argv[index:index+2]									# 2020 Denz: remove secret from sys.argv
+			break
 	# get secret														# 2020 Denz: get Secret from cmd
 	secret = None
 	for index, entry in enumerate(sys.argv):
 		if entry == "-s" and index < len(sys.argv)-1:
 			secret = sys.argv[index + 1]
+			del sys.argv[index:index+2]									# 2020 Denz: remove secret from sys.argv
+			break
+	# get user														# 2020 Denz: get Secret from cmd
+	uuid = None
+	for index, entry in enumerate(sys.argv):
+		if entry == "-i" and index < len(sys.argv)-1:
+			uuid = sys.argv[index + 1]
 			del sys.argv[index:index+2]									# 2020 Denz: remove secret from sys.argv
 			break
 	
@@ -88,17 +102,22 @@ def console_script():
 		print("unlock:                     Break the script lock, because of crashed script")
 		print("help:                       Print this help")
 		print("-c <config_file>            Configuration file to be used (default: {0})".format(CONFIG_FILE_DEFAULT))
-		print("-s <secret>                 Executor-Secret for configcreate")
+		print("-i <uuid>                   Executor-ID for server identification")
+		print("-s <secret>                 Executor-Secret for server authentication")
+		print("-u <user>                   Execute the submissions as a different user for higher security. Only possible as a root user! The user have to exist!")
+
+		
+		
 		return 0
 	
 	if sys.argv[1] == "configcreate":
 		if len(sys.argv)<=2 or sys.argv[2][0] == '-':
-			print("usage: opensubmit-exec configcreate <server_url> [-c <config_file>]")
+			print("usage: opensubmit-exec configcreate <server_url> [-c <config_file>] [-i <uuid>] [-s <secret>] [-u <user>]")
 			return 1
 		server_url = sys.argv[2]
 		
 		print("Creating config file at " + config_fname)
-		if create_config(config_fname, override_url=server_url, secret=secret):
+		if create_config(config_fname, override_url=server_url, override_uuid=uuid, override_secret=secret, override_user=user):
 			print("Config file created, fetching jobs from " + server_url)
 			return 0
 

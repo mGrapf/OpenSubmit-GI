@@ -15,7 +15,7 @@ RUN pip3 install --no-cache-dir -r /requirements.txt
 COPY dist/*.whl /
 RUN pip3 install /*.whl
 
-chmod -R o-x /usr/local/sbin \
+RUN chmod -R o-x /usr/local/sbin \
 && chmod -R o-x /usr/local/bin \
 && chmod -R o-x /usr/sbin \
 && chmod -R o-x /usr/bin \

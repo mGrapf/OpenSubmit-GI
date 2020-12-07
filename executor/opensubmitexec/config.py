@@ -29,7 +29,7 @@ DEFAULT_SETTINGS = {
 		# Execution environment for validation scripts
 		'script_runner': '/usr/bin/env python3',
 		'user': '',
-		'uid' : 0
+		'uid': 0
 	},
 	'Server': {
 		'url': 'http://localhost:8000',          # OpenSubmit web server
@@ -115,7 +115,6 @@ to_file={to_file}
 level={level}
 '''
 
-
 def read_config(config_file=CONFIG_FILE_DEFAULT, override_url=None, override_secret=None):
 	''' Read configuration file, perform sanity check and return configuration
 		dictionary used by other functions.'''
@@ -151,7 +150,7 @@ def read_config(config_file=CONFIG_FILE_DEFAULT, override_url=None, override_sec
 	if user:
 		try:
 			if os.geteuid() == 0 and pwd.getpwnam(user):				# 2020 Denz: Check, if current user == root and config-user exist
-				config['Execution']['uid'] = str(pwd.getpwnam(user).pw_uid)	# 2020 Denz: write uid of config-user in config
+				config['Execution']['uuid'] = str(pwd.getpwnam(user).pw_uid)	# 2020 Denz: write uid of config-user in config
 			else:
 				logger.warning("You have to start the program as root to allow to switch the user!")
 		except KeyError:
@@ -203,7 +202,7 @@ def has_config(config_fname):
 		return False
 
 
-def create_config(config_fname, override_url=None, secret=None):
+def create_config(config_fname, override_url=None, override_uuid=None, override_secret=None, override_user=None):
 	'''
 	Create the config file from the defaults under the given name.
 	'''
@@ -214,8 +213,12 @@ def create_config(config_fname, override_url=None, secret=None):
 	settings = DEFAULT_SETTINGS_FLAT
 	if override_url:
 		settings['url'] = override_url
-	if secret:															# 2020 Denz
-		settings['secret'] = secret
+	if override_uuid:															# 2020 Denz
+		settings['secret'] = override_uuid
+	if override_secret:															# 2020 Denz
+		settings['uuid'] = override_secret
+	if override_user:															# 2020 Denz
+		settings['user'] = override_user
 
 	# Create fresh config file, including new UUID
 	# old: with open(config_fname, 'wt') as config:

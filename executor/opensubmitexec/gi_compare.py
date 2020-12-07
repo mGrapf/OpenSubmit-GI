@@ -1,150 +1,183 @@
 #!/usr/bin/env python
 import re
 
-def compare(output_example : str, output_submission : str, config : {}):
-	# compare_case_sensitive
+def compare(output_example : str, output_submission : str, config : {}, debug=False):
+	
+	# Text output for demonstration
+	if debug:
+		print('### Original example text: ###')
+		for e in output_example.split('\n'):
+			print('|'+e+'|')
+		print()
+		print('### Original submission text ###')
+		for e in output_submission.split('\n'):
+			print('|'+e+'|')
+		print('\n\n')
+		
+	# Everything in lower case? (Default)
 	if not config['compare_case_sensitive']:
 		output_example = output_example.lower()
 		output_submission = output_submission.lower()
 	
-	# Whitespaces am Anfang und am Ende entfernen
+	# Remove whitespaces left and right
 	output_example = output_example.strip()
 	output_submission = output_submission.strip()
 
-	# Schreibe Output je nach Modus in Liste
-	if config['comparison_mode'] == 0:
-		output_example = [output_example]
-		output_submission = [output_submission]
-	if config['comparison_mode'] == 1:
+	# Compare only numbers? (optional)
+	if config['compare_only_numbers']:
+		output_example = re.sub('[^\s0-9]+','',output_example)
+		output_submission = re.sub('[^\s0-9]+','',output_submission)
+	
+	
+	
+	# Split text into lines
+	if config['group_lines'] or config['skip_lines'] or config['random_order_lines']:
 		output_example = output_example.split('\n')
 		output_submission = output_submission.split('\n')
-	elif config['comparison_mode'] == 2:
-		output_example = output_example.split()
-		output_submission = output_submission.split()
-	elif config['comparison_mode'] == 3:
-		output_example = list(output_example)
-		output_submission = list(output_submission)
+	else:
+		output_example = [output_example]
+		output_submission = [output_submission]
+	
+	# Split lines into words
+	for line in range(len(output_example)):
+		if config['group_words'] or config['skip_words'] or config['random_order_words']:
+			output_example[line] = output_example[line].split()
+		else:
+			output_example[line] = [output_example[line]]
+	for line in range(len(output_submission)):
+		if config['group_words'] or config['skip_words'] or config['random_order_words']:
+			output_submission[line] = output_submission[line].split()
+		else:
+			output_submission[line] = [output_submission[line]]
+	
+	# Split lines into characters
+	for line in range(len(output_example)):
+		for word in range(len(output_example[line])):
+			if config['compare_whitespaces']==False or config['skip_characters'] or config['random_order_characters']:
+				output_example[line][word] = list(re.sub('\s','',output_example[line][word]))
+			else:
+				output_example[line][word] = [output_example[line][word]]
+	for line in range(len(output_submission)):
+		for word in range(len(output_submission[line])):
+			if config['compare_whitespaces']==False or config['skip_characters'] or config['random_order_characters']:
+				output_submission[line][word] = list(re.sub('\s','',output_submission[line][word]))
+			else:
+				output_submission[line][word] = [output_submission[line][word]]
 
-	# example veraendern
-	for i in range(len(output_example)):
-		if config['compare_only_numbers']:
-			output_example[i] = re.sub('[^0-9]+','',output_example[i])
-		if config['compare_spaces']:
-			output_example[i] = output_example[i].rstrip() # nur rechte Leerzeichen entfernen
-		else:
-			output_example[i] = re.sub("\s","",output_example[i]) # alle Leerzeichen entfernen
-	output_example = [feld for feld in output_example if feld != ''] # leere Listeneintraege entfernen
-	if len(output_example) == 0:
-		return False, "Validatorfehler: Der Test erzeugt mit der aktuellen Konfiguration keine sinnvolle Ausgabe!"
-	
-	# submission veraendern
-	for i in range(len(output_submission)):
-		if config['compare_only_numbers']:
-			output_submission[i] = re.sub('[^0-9]+','',output_submission[i])
-		if config['compare_spaces']:
-			output_submission[i] = output_submission[i].rstrip() # nur rechte Leerzeichen entfernen (bei Zeilen)
-		else:
-			output_submission[i] = re.sub("\s","",output_submission[i]) # alle Leerzeichen entfernen
-	output_submission = [feld for feld in output_submission if feld != ''] # leere Listeneintraege entfernen
-	if len(output_submission) == 0:
-		return False, "Das Programm erzeugt keine Ausgabe!"
-
-	
-	print("\n### Bearbeitet: Example: ###")
-	for e in output_example:
-		print('|'+e+'|')
-	print("### Bearbeitet: Submission: ###")
-	for e in output_submission:
-		print('|'+e+'|')
-	print()
+	# Text output for demonstration
+	if debug:
+		print('### Edited and listed example text: ###')
+		for line in output_example:
+			print('|',end='')
+			for word in line:
+				print('[',end='')
+				for letter in word:
+					print('[',end='')
+					print(letter,end='')
+					print(']',end='')
+				print(']  ',end='')
+			print('|')
+		print()
+		print('### Edited and listed submission text ###')
+		for line in output_submission:
+			print('|',end='')
+			for word in line:
+				print('[',end='')
+				for letter in word:
+					print('[',end='')
+					print(letter,end='')
+					print(']',end='')
+				print(']  ',end='')
+			print('|')
+		print()
 	
 	
-	if config['comparison_mode'] == 0: # Vergleich Mode 0:
-		pos = output_submission[0].find(output_example[0])
-		if config['compare_skip_first'] and pos > 0:
-			output_submission[0] = output_submission[0][pos:]
-		if (config['compare_skip'] != 0 and pos == -1) \
-		or (config['compare_skip'] == 0 and output_example[0] != output_submission[0]):
-			return False, "Nicht gleich (1)"
-	else: # Vergleich Mode 1-3:
-		if config['compare_skip_first']:
-			for s in output_submission:
-				if s not in output_example:
-					output_submission.remove(s)
-					break
-		if config['compare_any_order']:
-			for e in output_example:
-				try:
-					output_submission.remove(e)
-				except:
-					return False, "Nicht gleich (2)"
-		else:
-			i = 0
-			for e in output_example:
-				if i >= len(output_submission):
-					return False, "Nicht gleich (3)"
-				while(e != output_submission[i] and i+1 < len(output_submission)):
+	
+	# Compare characters individually
+	def compare_characters(output_example,output_submission,config):
+		output_example = output_example.copy()
+		output_submission = output_submission.copy()
+		i = 0
+		for e in output_example:
+			try:
+				if config['random_order_characters']:
+					i = 0
+				while(e != output_submission[i]):
 					i += 1
-				if e == output_submission[i]:
-					output_submission.pop(i)
-				else:
-					return False, "Nicht gleich (4)"
+				output_submission.pop(i)
+			except Exception as e:
+				return False
+		if output_submission and not config['skip_characters']:
+			return False
+		return True
 	
-		skip = config['compare_skip']
-		length = len(output_submission)
-		if skip >= 0 and length > skip:
-			return False, "Nicht gleich (5). "+str(length-skip)+" zu viel!"
-
-	return True, "Output ist gleich!"
-
-
-if __name__ == "__main__":
-	output_example = '''
-
-Hallo Welt!
-Hier ist ein Text
-In welchem Zahlen, wie 1, 2 oder auch 42 vorkommen können.
-9 7 3
-111 2
-Ende'''
-	output_submission = '''
-	er
-	ff
-	ferfe
-	Hallo Welt!
-	  Hier ist ein Text
-	In welchem Zahlen, wie 1, 2 oder auch 42 vorkommen können.
-	9 7 3
-	 111 2
-
-	 Ende
-
-	'''
-	print("### Example: ###")
-	for e in output_example.split('\n'):
-		print('|'+e+'|')
-	print("### ######## ###")
-	print("### Submission: ###")
-	for e in output_submission.split('\n'):
-		print('|'+e+'|')
-	print("### ######## ###")
+	# Compare words individually
+	def compare_words(output_example,output_submission,config):
+		output_example = output_example.copy()
+		output_submission = output_submission.copy()
+		i = 0
+		for e in output_example:
+			try:
+				if config['random_order_words']:
+					i = 0;
+				while compare_characters(e,output_submission[i],config) == False:
+					i += 1
+				output_submission.pop(i)
+			except Exception as e:
+				return False
+		if output_submission and not config['skip_words']:
+			return False
+		return True
 	
+	# Compare lines individually
+	def compare_lines(output_example,output_submission,config):
+		i = 0
+		for e in output_example:
+			try:
+				if config['random_order_lines']:
+					i = 0;
+				while compare_words(e,output_submission[i],config) == False:
+					i += 1
+				output_submission.pop(i)
+			except Exception as e:
+				return False
+		if output_submission and not config['skip_lines']:
+			return False
+		return True
 	
+	return compare_lines(output_example,output_submission,config)
+
+
+if __name__ == '__main__':
 	config = {}
-	config['comparison_mode'] = 1
-	config['compare_skip'] = 0
-	config['compare_skip_first'] = True
-	config['compare_any_order'] = False
-	config['compare_spaces'] = False
-	config['compare_case_sensitive'] = False
-	config['compare_only_numbers'] = False
+	config['compare_case_sensitive'] = False	# Default = False
+	config['compare_only_numbers'] = False		# Default = False
+	config['compare_whitespaces'] = False		# Default = False
+
+	config['group_lines'] = False				# Default = False
+	config['group_words'] = False				# Default = False
 	
+	config['skip_lines'] = True					# Default = False
+	config['skip_words'] = False				# Default = False
+	config['skip_characters'] = True			# Default = False
+	
+	config['random_order_lines'] = False		# Default = False
+	config['random_order_words'] = False		# Default = False
+	config['random_order_characters'] = False	# Default = False
+
+	output_example = '''hello world'''
+	output_submission = '''I'm there!
+		Hello World!'''
 
 	
-	
-	
-	
-	result, text = compare(output_example,output_submission,config)
-	print(result)
-	print(text)
+	equal = compare(output_example,output_submission,config,debug=True)
+	print('End result:')
+	if equal:
+		print('The submitted text contains the example text!')
+	else:
+		print('According to the current configuration,\nthe submitted text is assessed as different.')
+
+
+
+
 
