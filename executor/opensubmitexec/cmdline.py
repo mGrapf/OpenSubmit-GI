@@ -102,7 +102,7 @@ def console_script():
 		print("unlock:                     Break the script lock, because of crashed script")
 		print("help:                       Print this help")
 		print("-c <config_file>            Configuration file to be used (default: {0})".format(CONFIG_FILE_DEFAULT))
-		print("-i <uuid>                   Executor-ID for server identification")
+		print("-i <id>                     Executor-ID for server identification")
 		print("-s <secret>                 Executor-Secret for server authentication")
 		print("-u <user>                   Execute the submissions as a different user for higher security. Only possible as a root user! The user have to exist!")
 

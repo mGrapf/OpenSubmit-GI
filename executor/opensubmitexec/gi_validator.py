@@ -12,12 +12,28 @@ logger = logging.getLogger('opensubmitexec')
 
 
 def validate(job):
-	fname_example = job.validator_files[0]
-	if len(job.validator_files) == 2:
-		fname_main = job.validator_files[1]
-	else:
-		fname_main = None
 	
+	if len(job.validator_files) == 1:
+		fname_main = job.validator_files[1]
+		fname_main = None
+	else:
+		cpp_files = []
+		for file in job.validator_files:
+			if file.endswith(".cpp"):
+				cpp_files.append(file)
+		if len(cpp_files) > 2:
+			job.send_fail_result("There are a problem with the cpp-validator ;(","Too many Validator CPP files were submitted.")
+			return
+		for file in cpp_files:
+			with open (job.working_dir+file, "r") as cpp:
+				code = cpp.read()
+				if "[CONFIG]" in code and ";EOF" in code:
+					logger.debug("The cpp-configuration is in "+file)
+					fname_main = file
+					cpp_files.remove(file)
+					fname_example = cpp_files[0]
+					break
+
 	""" Lese example """
 	def read_file(fname: str) -> str:
 		with open(job.working_dir+fname, 'r',encoding="utf-8") as f:
@@ -34,6 +50,7 @@ def validate(job):
 		fname_main = None
 		main = example
 		logger.debug("::: Keine validator_main.cpp gefunden.")
+	
 	
 	""" Lese Konfiguration """
 	def readConfig(data : str) -> dict:    
@@ -63,11 +80,12 @@ def validate(job):
 	# Settings for output comparison:
 		COMPARE_CASE_SENSITIVE = FALSE
 		COMPARE_ONLY_NUMBERS = FALSE
-		COMPARE_WHITESPACES = FALSE
+		REMOVE_WHITESPACES = FALSE
 		
 		GROUP_LINES = FALSE
 		GROUP_WORDS = FALSE
 		
+		SKIP_FIRST_LINES = FALSE
 		SKIP_LINES = FALSE
 		SKIP_WORDS = FALSE
 		SKIP_CHARACTERS = FALSE
@@ -98,9 +116,10 @@ def validate(job):
 		
 		dconfig['compare_case_sensitive'] = config.getboolean('CONFIG', 'compare_case_sensitive')
 		dconfig['compare_only_numbers'] = config.getboolean('CONFIG', 'compare_only_numbers')
-		dconfig['compare_whitespaces'] = config.getboolean('CONFIG', 'compare_whitespaces')
+		dconfig['remove_whitespaces'] = config.getboolean('CONFIG', 'remove_whitespaces')
 		dconfig['group_lines'] = config.getboolean('CONFIG', 'group_lines')
 		dconfig['group_words'] = config.getboolean('CONFIG', 'group_words')
+		dconfig['skip_first_lines'] = config.getboolean('CONFIG', 'skip_first_lines')
 		dconfig['skip_lines'] = config.getboolean('CONFIG', 'skip_lines')
 		dconfig['skip_words'] = config.getboolean('CONFIG', 'skip_words')
 		dconfig['skip_characters'] = config.getboolean('CONFIG', 'skip_characters')
@@ -145,6 +164,17 @@ def validate(job):
 	example = remove_comments(example)
 	submission = remove_comments(submission)
 
+	""" ggf. main-Funktion umbenennen """
+	if fname_main and re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',main):
+		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',example):
+			logger.debug("::: rename main() from example")
+			example = re.sub("int(\n| )+main(\n| )*[(].*[)](\n| )*{","int main2(){",example)
+			print(2)
+		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',submission):
+			logger.debug("::: rename main() from submission")
+			submission = re.sub("int(\n| )+main(\n| )*[(].*[)](\n| )*{","int main2(){",submission)
+	print(3)
+
 	""" ggf. main-Funktion entfernen """
 	def remove_main(data: str) -> str:
 		pos = re.search("int(\n| )+main(\n| )*[(].*[)](\n| )*{",data)
@@ -162,14 +192,13 @@ def validate(job):
 				i+=1
 			data = s1 + s2[i:]
 		return data
-	if fname_main and re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',main):
-		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',example):
-			logger.debug("::: remove main() from example")
-			example = remove_main(example)
-		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',submission):
-			logger.debug("::: remove main() from submission")
-			submission = remove_main(submission)
-	
+	#if fname_main and re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',main):
+	#	if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',example):
+	#		logger.debug("::: remove main() from example")
+	#		example = remove_main(example)
+	#	if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',submission):
+	#		logger.debug("::: remove main() from submission")
+	#		submission = remove_main(submission)
 	
 	""" Rekursion """
 	if config['recursion']:
@@ -205,7 +234,6 @@ def validate(job):
 			f.write(data)
 	prepare_write(fname_example,example)
 	prepare_write(fname_submission,submission)
-
 
 	""" Kompiliere """
 	if not fname_main:
@@ -279,6 +307,7 @@ def validate(job):
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
 		
+		
 		# Existenz der Ausgabe prüfen
 		if re.sub('\s','',output_example) == "":
 			job.send_fail_result("Validatorfehler :(", "Ihr cpp-example erzeugt keine Ausgabe!")
@@ -292,34 +321,59 @@ def validate(job):
 			job.send_fail_result("Ihr Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nIhr Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Ihre Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
 			return	
 		
-		# Notizen suchen
+		# Notizen in example suchen
 		output_notes = []
 		while("<COMMENT>" in output_example) and ("</COMMENT>" in output_example):
 			pos1 = output_example.find("<COMMENT>")
 			pos2 = output_example.find("</COMMENT>")
 			output_notes.append(output_example[pos1+9:pos2])
 			output_example = output_example[:pos1]+output_example[pos2+10:]
-		# Verstecketen Text ausblenden
+		notes = "Hinweis:"
+		for note in output_notes:
+			notes = note+"\n"
+		# Notizen in submission suchen
+		while("<COMMENT>" in output_submission) and ("</COMMENT>" in output_submission):
+			pos1 = output_submission.find("<COMMENT>")
+			pos2 = output_submission.find("</COMMENT>")
+			output_submission = output_submission[:pos1]+output_submission[pos2+10:]
+			
+		# Verstecketen Text in example ausblenden
 		while("<HIDDEN>" in output_example) and ("</HIDDEN>" in output_example):
 			pos1 = output_example.find("<HIDDEN>")
 			pos2 = output_example.find("</HIDDEN>")
 			output_example = output_example[:pos1]+output_example[pos2+9:]
+		# Verstecketen Text in submission ausblenden
+		while("<HIDDEN>" in output_submission) and ("</HIDDEN>" in output_submission):
+			pos1 = output_submission.find("<HIDDEN>")
+			pos2 = output_submission.find("</HIDDEN>")
+			output_submission = output_submission[:pos1]+output_submission[pos2+9:]
+		
+		# Leeren Anfang und Ende entfernen
+		output_example = output_example.strip()
+		output_submission = output_submission.strip()
+		while output_example and output_example[0] == '\n':
+			output_example = output_example[1:].strip()
+		while output_submission and output_submission[0] == '\n':
+			output_submission = output_submission[1:].strip()
+		while output_example and output_example[-1] == '\n':
+			output_example = output_example[:-1].strip()
+		while output_submission and output_submission[-1] == '\n':
+			output_submission = output_submission[:-1].strip()
 
 		# Output vergleichen
 		original_example = output_example
 		original_submission = output_submission
-		ok = compare(output_example,output_submission,config)
+		ok, debug_text = compare(output_example,output_submission,config)
+		
+		info_student = notes+"\n### Erwartete Ausgabe: ###\n"+output_example+"\n\n### Ihre Ausgabe: ###\n"+output_submission+"\n\nLeider enthält Ihr Code nicht die erwartete Ausgabe :/"
+		info_tutor = debug_text
 		if not ok:
-			if test == "$NOINPUT" or config['echo_input'] == True:
-				job.send_fail_result("Leider erzeugt Ihr Code eine andere Ausgabe :/\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Ihre Ausgabe: ###\n{1}".format(output_example, output_submission), "wrong output")
-			else:
-				job.send_fail_result("Leider erzeugt Ihr Code eine andere Ausgabe :/\n\n### Eingabe: "+test+" ###\n\n### Erwartete Ausgabe: ###\n{0}\n\n\n### Ihre Ausgabe: ###\n{1}".format(original_example, original_submission), "wrong output")
-			print("##########################################")
-			print(text)
-			print("##########################################")
+			print("\n\nSende an Tutor:\n"+info_tutor)
+			print("\n\nSende an Studenten:\n"+info_student)
+			job.send_fail_result(info_student,info_tutor)
 			return
 
 	# Alle Tests erfolgreich
-	print("Alle Tests erfolgreich!")
+	print("\nSende an Server:\nAll tests passed. Awesome!")
 	job.send_pass_result('All tests passed. Awesome!', "All tests passed.")
 	

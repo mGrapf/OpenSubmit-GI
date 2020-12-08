@@ -161,8 +161,8 @@ class InternalJob():
 					 ("Secret", self._config.get("Server", "secret")),
 					 ("UUID", self._config.get("Server", "uuid"))
 					 ]
-		logger.info(
-			'Sending result to OpenSubmit Server: ' + str(post_data))
+		#logger.info(													# 2020 Denz
+		#	'Sending result to OpenSubmit Server: ' + str(post_data))
 		if self._online:
 			send_post(self._config, "/jobs/", post_data)
 		self.result_sent = True
