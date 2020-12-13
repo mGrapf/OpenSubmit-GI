@@ -145,9 +145,9 @@ def fetch_job(config):
 			# It would be better to return relative URLs only for this property,
 			# but this is a Bernhard-incompatible API change
 			from urllib.parse import urlparse
-			#relative_path = urlparse(headers["PostRunValidation"]).path		# 2020 Denz
+			#relative_path = urlparse(headers["PostRunValidation"]).path		# 2020 Denz: Problem bei Sub-Adressen...
 			#job.validator_url = config.get("Server", "url") + relative_path
-			job.validator_url = urlparse(headers["PostRunValidation"]).path
+			job.validator_url = headers["PostRunValidation"]
 		job.working_dir = create_working_dir(config, job.sub_id)
 
 		# Store submission in working directory

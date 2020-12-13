@@ -34,6 +34,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 	if config['random_order_characters']:
 		dprint('- random_order_characters')
 	dprint()
+	"""
 	dprint('### Beispieltext: ###')
 	for e in output_example.split('\n'):
 		dprint('|'+e+'|')
@@ -42,6 +43,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 	for e in output_submission.split('\n'):
 		dprint('|'+e+'|')
 	dprint()
+	"""
 		
 	# Everything in lower case? (Default)
 	if not config['compare_case_sensitive']:
@@ -106,7 +108,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 	output_submission = tmp
 
 	# Text output for demonstration
-	dprint('### Bearbeiteter Beispieltext: ###')
+	dprint('### Debug: Bearbeiteter Beispieltext: ###')
 	for line in output_example:
 		dprint('|',end='')
 		for word in line:
@@ -116,7 +118,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 			dprint(']  ',end='')
 		dprint('|')
 	dprint()
-	dprint('### Bearbeiteter, zu vergleichender Text: ###')
+	dprint('### Debug: Bearbeiteter, zu vergleichender Text: ###')
 	for line in output_submission:
 		dprint('|',end='')
 		for word in line:

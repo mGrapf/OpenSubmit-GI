@@ -12,7 +12,6 @@ logger = logging.getLogger('opensubmitexec')
 
 
 def validate(job):
-	
 	if len(job.validator_files) == 1:
 		fname_main = job.validator_files[1]
 		fname_main = None
@@ -169,11 +168,9 @@ def validate(job):
 		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',example):
 			logger.debug("::: rename main() from example")
 			example = re.sub("int(\n| )+main(\n| )*[(].*[)](\n| )*{","int main2(){",example)
-			print(2)
 		if re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',submission):
 			logger.debug("::: rename main() from submission")
 			submission = re.sub("int(\n| )+main(\n| )*[(].*[)](\n| )*{","int main2(){",submission)
-	print(3)
 
 	""" ggf. main-Funktion entfernen """
 	def remove_main(data: str) -> str:
@@ -307,7 +304,6 @@ def validate(job):
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
 		
-		
 		# Existenz der Ausgabe prüfen
 		if re.sub('\s','',output_example) == "":
 			job.send_fail_result("Validatorfehler :(", "Ihr cpp-example erzeugt keine Ausgabe!")
@@ -368,8 +364,8 @@ def validate(job):
 		info_student = notes+"\n### Erwartete Ausgabe: ###\n"+output_example+"\n\n### Ihre Ausgabe: ###\n"+output_submission+"\n\nLeider enthält Ihr Code nicht die erwartete Ausgabe :/"
 		info_tutor = debug_text
 		if not ok:
-			print("\n\nSende an Tutor:\n"+info_tutor)
-			print("\n\nSende an Studenten:\n"+info_student)
+			#print("\n\nSende an Tutor:\n"+info_tutor)
+			#print("\n\nSende an Studenten:\n"+info_student)
 			job.send_fail_result(info_student,info_tutor)
 			return
 
