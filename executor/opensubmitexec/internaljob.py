@@ -82,14 +82,14 @@ class InternalJob():
 			
 			if type(e) is TerminationException:
 				if self.gi_validator == True:								# 2020 Denz
-				while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
-					pos1 = e.output.find("<COMMENT>")
-					pos2 = e.output.find("</COMMENT>")
-					e.output = e.output[:pos1]+e.output[pos2+10:]
-				while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
-					pos1 = e.output.find("<HIDDEN>")
-					pos2 = e.output.find("</HIDDEN>")
-					e.output = e.output[:pos1]+e.output[pos2+9:]
+					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
+						pos1 = e.output.find("<COMMENT>")
+						pos2 = e.output.find("</COMMENT>")
+						e.output = e.output[:pos1]+e.output[pos2+10:]
+					while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
+						pos1 = e.output.find("<HIDDEN>")
+						pos2 = e.output.find("</HIDDEN>")
+						e.output = e.output[:pos1]+e.output[pos2+9:]
 				text_student = "The execution of '{0}' terminated unexpectely.".format(
 					e.instance.name)
 				text_tutor = "The execution of '{0}' terminated unexpectely.".format(
@@ -98,14 +98,14 @@ class InternalJob():
 				#text_tutor += "\n\nOutput so far:\n" + e.output
 			elif type(e) is TimeoutException:
 				if self.gi_validator == True:								# 2020 Denz
-				while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
-					pos1 = e.output.find("<COMMENT>")
-					pos2 = e.output.find("</COMMENT>")
-					e.output = e.output[:pos1]+e.output[pos2+10:]
-				while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
-					pos1 = e.output.find("<HIDDEN>")
-					pos2 = e.output.find("</HIDDEN>")
-					e.output = e.output[:pos1]+e.output[pos2+9:]
+					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
+						pos1 = e.output.find("<COMMENT>")
+						pos2 = e.output.find("</COMMENT>")
+						e.output = e.output[:pos1]+e.output[pos2+10:]
+					while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
+						pos1 = e.output.find("<HIDDEN>")
+						pos2 = e.output.find("</HIDDEN>")
+						e.output = e.output[:pos1]+e.output[pos2+9:]
 				text_student = "The execution of '{0}' was cancelled, since it took too long.".format(
 					e.instance.name)
 				text_tutor = "The execution of '{0}' was cancelled due to timeout.".format(
@@ -114,14 +114,14 @@ class InternalJob():
 				#text_tutor += "\n\nOutput so far:\n" + e.output
 			elif type(e) is NestedException:
 				if self.gi_validator == True:								# 2020 Denz
-				while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
-					pos1 = e.output.find("<COMMENT>")
-					pos2 = e.output.find("</COMMENT>")
-					e.output = e.output[:pos1]+e.output[pos2+10:]
-				while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
-					pos1 = e.output.find("<HIDDEN>")
-					pos2 = e.output.find("</HIDDEN>")
-					e.output = e.output[:pos1]+e.output[pos2+9:]
+					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
+						pos1 = e.output.find("<COMMENT>")
+						pos2 = e.output.find("</COMMENT>")
+						e.output = e.output[:pos1]+e.output[pos2+10:]
+					while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
+						pos1 = e.output.find("<HIDDEN>")
+						pos2 = e.output.find("</HIDDEN>")
+						e.output = e.output[:pos1]+e.output[pos2+9:]
 				text_student = "Unexpected problem during the execution of '{0}'. {1}".format(
 					e.instance.name,
 					str(e.real_exception))
@@ -132,14 +132,14 @@ class InternalJob():
 				#text_tutor += "\n\nOutput so far:\n" + e.output
 			elif type(e) is WrongExitStatusException:
 				if self.gi_validator == True:								# 2020 Denz
-				while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
-					pos1 = e.output.find("<COMMENT>")
-					pos2 = e.output.find("</COMMENT>")
-					e.output = e.output[:pos1]+e.output[pos2+10:]
-				while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
-					pos1 = e.output.find("<HIDDEN>")
-					pos2 = e.output.find("</HIDDEN>")
-					e.output = e.output[:pos1]+e.output[pos2+9:]
+					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
+						pos1 = e.output.find("<COMMENT>")
+						pos2 = e.output.find("</COMMENT>")
+						e.output = e.output[:pos1]+e.output[pos2+10:]
+					while("<HIDDEN>" in e.output) and ("</HIDDEN>" in e.output):
+						pos1 = e.output.find("<HIDDEN>")
+						pos2 = e.output.find("</HIDDEN>")
+						e.output = e.output[:pos1]+e.output[pos2+9:]
 				text_student = "The execution of '{0}' resulted in the unexpected exit status {1}.".format(
 					e.instance.name,
 					e.got)
