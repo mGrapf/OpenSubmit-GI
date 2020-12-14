@@ -12,6 +12,7 @@ logger = logging.getLogger('opensubmitexec')
 
 
 def validate(job):
+	print(1)
 	if len(job.validator_files) == 1:
 		fname_main = job.validator_files[1]
 		fname_main = None
@@ -24,7 +25,7 @@ def validate(job):
 			job.send_fail_result("There are a problem with the cpp-validator ;(","Too many Validator CPP files were submitted.")
 			return
 		for file in cpp_files:
-			with open (job.working_dir+file, "r") as cpp:
+			with open (job.working_dir+file, "r",encoding="utf-8") as cpp:
 				code = cpp.read()
 				if "[CONFIG]" in code and ";EOF" in code:
 					logger.debug("The cpp-configuration is in "+file)
@@ -35,7 +36,7 @@ def validate(job):
 
 	""" Lese example """
 	def read_file(fname: str) -> str:
-		with open(job.working_dir+fname, 'r',encoding="utf-8") as f:
+		with open(job.working_dir+fname, 'r',encoding="utf-8", errors='ignore') as f:
 			data = f.read()
 		return data
 	SECURITY_CODE = job._config.get("Server", "secret")
@@ -232,6 +233,7 @@ def validate(job):
 	prepare_write(fname_example,example)
 	prepare_write(fname_submission,submission)
 
+	print(236)
 	""" Kompiliere """
 	if not fname_main:
 		""" 1. example; 2. submission """
@@ -244,7 +246,7 @@ def validate(job):
 		with open(job.working_dir+fname_main, 'w',encoding="utf-8") as f:
 			f.write(main)
 		job.run_compiler(compiler=GPP, inputs=[fname_main], output='submission')
-	
+	print(249)
 	""" create test-cases """
 	def createTests(config : {}) -> [str]:
 		seed(urandom(100))
@@ -280,11 +282,11 @@ def validate(job):
 			insertRandom("$NOINPUT",testcases)
 		return testcases, default
 	
-
+	print(285)
 	# Fuehre das Programm mehrmals mit entsprechenden cases aus
 	testcases, defaulttest = createTests(config)	
 	for test in testcases:
-
+		print(289)
 		if test == "$NOINPUT":
 			exit_code_example, output_example = job.run_program('./example')
 			exit_code_submission, output_submission = job.run_program('./submission')
@@ -298,11 +300,16 @@ def validate(job):
 				running_example.sendline(word)
 				running_submission.sendline(word)
 			# Ausgabe der Programme lesen
+			print(303)
 			exit_code_example, output_example = running_example.expect_end()
+			print(305)
 			exit_code_submission, output_submission = running_submission.expect_end()
+			print(307)
 			l = len(test)
+			print(309)
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
+			print(310)
 		
 		# Existenz der Ausgabe prüfen
 		if re.sub('\s','',output_example) == "":
@@ -314,6 +321,7 @@ def validate(job):
 		if exit_code_submission == None:
 			job.send_fail_result("Ihr Programm wurde vorzeitig beendet!\n\nDies liegt vermutlich an einem Problem des Validators.\nDaran wird aktiv gearbeitet.\nBitte versuchen Sie es später erneut.)")
 			return
+		print(322)
 		
 		# Notizen in example suchen
 		output_notes = []

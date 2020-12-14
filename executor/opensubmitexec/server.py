@@ -253,7 +253,7 @@ def fake_fetch_job(config, src):
 			job.validator_files = cpp_files
 		elif len(cpp_files) == 2:
 			for file in cpp_files:
-				with open (job.working_dir+file, "r") as cpp:
+				with open (job.working_dir+file, "r",encoding="utf-8") as cpp:
 					code = cpp.read()
 					if "[CONFIG]" in code and ";EOF" in code:
 						logger.debug("The cpp-configuration is in "+file)

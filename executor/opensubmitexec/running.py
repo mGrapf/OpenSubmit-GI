@@ -62,7 +62,7 @@ class RunningProgram(pexpect.spawn):
 		# Open temporary file for reading, in text mode
 		# This makes sure that the file pointer for writing
 		# is not touched
-		output = ''.join(open(self._logfile.name).readlines())
+		output = ''.join(open(self._logfile.name,errors='ignore').readlines())
 		if self.job._config.get("Server", "secret") in output:			# 2020 Denz: New little security-feature
 			raise SecurityException
 		return output
