@@ -290,16 +290,28 @@ def validate(job):
 			exit_code_submission, output_submission = job.run_program('./submission')
 		else:
 			# Programme ausführen
+			print(1)
 			running_example = job.spawn_program('./example', [test], echo=config['echo_input'])
+			print(2)
 			running_submission = job.spawn_program('./submission', [test], echo=config['echo_input'])
+			print(3)
 			# Input senden
 			for word in test.split():
 				time.sleep(config['input_time'])
 				running_example.sendline(word)
+				time.sleep(1)
 				running_submission.sendline(word)
+				print(4)
 			# Ausgabe der Programme lesen
 			exit_code_example, output_example = running_example.expect_end()
+			print(5)
+			time.sleep(1)
 			exit_code_submission, output_submission = running_submission.expect_end()
+			
+			print(20)
+			print(exit_code_submission)
+			print(output_submission)
+			
 			l = len(test)
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
@@ -311,8 +323,9 @@ def validate(job):
 		if re.sub('\s','',output_submission) == "":
 			job.send_fail_result("Ihr Programm erzeugt keine Ausgabe!")
 			return
-		
-		
+		if exit_code_submission == None:
+			job.send_fail_result("Ihr Programm wurde vorzeitig beendet!\n\nDies liegt vermutlich an einem Problem des Validators.\nDaran wird aktiv gearbeitet.\nBitte versuchen Sie es später erneut.)")
+			return
 		
 		# Notizen in example suchen
 		output_notes = []
@@ -352,6 +365,8 @@ def validate(job):
 			output_example = output_example[:-1].strip()
 		while output_submission and output_submission[-1] == '\n':
 			output_submission = output_submission[:-1].strip()
+
+		
 
 		# Exit-Codes vergleichen  
 		if exit_code_example != exit_code_submission:
