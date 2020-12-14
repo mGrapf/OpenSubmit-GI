@@ -312,10 +312,7 @@ def validate(job):
 			job.send_fail_result("Ihr Programm erzeugt keine Ausgabe!")
 			return
 		
-		# Exit-Codes vergleichen  
-		if exit_code_example != exit_code_submission:
-			job.send_fail_result("Ihr Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nIhr Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Ihre Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
-			return	
+		
 		
 		# Notizen in example suchen
 		output_notes = []
@@ -355,6 +352,11 @@ def validate(job):
 			output_example = output_example[:-1].strip()
 		while output_submission and output_submission[-1] == '\n':
 			output_submission = output_submission[:-1].strip()
+
+		# Exit-Codes vergleichen  
+		if exit_code_example != exit_code_submission:
+			job.send_fail_result("Ihr Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nIhr Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Ihre Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
+			return	
 
 		# Output vergleichen
 		original_example = output_example
