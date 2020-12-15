@@ -12,7 +12,6 @@ logger = logging.getLogger('opensubmitexec')
 
 
 def validate(job):
-	print(1)
 	if len(job.validator_files) == 1:
 		fname_main = job.validator_files[1]
 		fname_main = None
@@ -233,7 +232,6 @@ def validate(job):
 	prepare_write(fname_example,example)
 	prepare_write(fname_submission,submission)
 
-	print(236)
 	""" Kompiliere """
 	if not fname_main:
 		""" 1. example; 2. submission """
@@ -246,7 +244,7 @@ def validate(job):
 		with open(job.working_dir+fname_main, 'w',encoding="utf-8") as f:
 			f.write(main)
 		job.run_compiler(compiler=GPP, inputs=[fname_main], output='submission')
-	print(249)
+
 	""" create test-cases """
 	def createTests(config : {}) -> [str]:
 		seed(urandom(100))
@@ -282,46 +280,31 @@ def validate(job):
 			insertRandom("$NOINPUT",testcases)
 		return testcases, default
 	
-	print(285)
 	# Fuehre das Programm mehrmals mit entsprechenden cases aus
 	testcases, defaulttest = createTests(config)	
 	for test in testcases:
-		print(289)
 		if test == "$NOINPUT":
 			exit_code_example, output_example = job.run_program('./example')
 			exit_code_submission, output_submission = job.run_program('./submission')
 		else:
-			# Programme ausführen
+			# Example ausführen
 			running_example = job.spawn_program('./example', [test], echo=config['echo_input'])
-			running_submission = job.spawn_program('./submission', [test], echo=config['echo_input'])
-			# Input senden
 			for word in test.split():
 				time.sleep(config['input_time'])
 				running_example.sendline(word)
-				running_submission.sendline(word)
-			# Ausgabe der Programme lesen
-			print(303)
 			exit_code_example, output_example = running_example.expect_end()
-			print(305)
-			exit_code_submission, output_submission = running_submission.expect_end()
-			print(307)
 			l = len(test)
-			print(309)
 			output_example = output_example[l+1:]
+			
+			# Submission ausführen
+			running_submission = job.spawn_program('./submission', [test], echo=config['echo_input'])
+			for word in test.split():
+				time.sleep(config['input_time'])
+				running_submission.sendline(word)
+			exit_code_submission, output_submission = running_submission.expect_end()
 			output_submission = output_submission[l+1:]
-			print(310)
-		
-		# Existenz der Ausgabe prüfen
-		if re.sub('\s','',output_example) == "":
-			job.send_fail_result("Validatorfehler :(", "Ihr cpp-example erzeugt keine Ausgabe!")
-			return
-		if re.sub('\s','',output_submission) == "":
-			job.send_fail_result("Ihr Programm erzeugt keine Ausgabe!")
-			return
-		if exit_code_submission == None:
-			job.send_fail_result("Ihr Programm wurde vorzeitig beendet!\n\nDies liegt vermutlich an einem Problem des Validators.\nDaran wird aktiv gearbeitet.\nBitte versuchen Sie es später erneut.)")
-			return
-		print(322)
+
+
 		
 		# Notizen in example suchen
 		output_notes = []
@@ -338,7 +321,7 @@ def validate(job):
 			pos1 = output_submission.find("<COMMENT>")
 			pos2 = output_submission.find("</COMMENT>")
 			output_submission = output_submission[:pos1]+output_submission[pos2+10:]
-			
+
 		# Verstecketen Text in example ausblenden
 		while("<HIDDEN>" in output_example) and ("</HIDDEN>" in output_example):
 			pos1 = output_example.find("<HIDDEN>")
@@ -349,7 +332,7 @@ def validate(job):
 			pos1 = output_submission.find("<HIDDEN>")
 			pos2 = output_submission.find("</HIDDEN>")
 			output_submission = output_submission[:pos1]+output_submission[pos2+9:]
-		
+			
 		# Leeren Anfang und Ende entfernen
 		output_example = output_example.strip()
 		output_submission = output_submission.strip()
@@ -362,16 +345,26 @@ def validate(job):
 		while output_submission and output_submission[-1] == '\n':
 			output_submission = output_submission[:-1].strip()
 
-		
-
+		# Exit-Codes vergleichen  
+		if exit_code_submission == None:
+			job.send_fail_result(notes+"\n### Ihre Ausgabe: ###\n"+output_submission+"\n\nIhr Programm scheint abzustürzen.\n(evtl. Speicherzugriffsfehler?)")
+			return
 		# Exit-Codes vergleichen  
 		if exit_code_example != exit_code_submission:
 			job.send_fail_result("Ihr Programm wurde nicht ordentlich beendet :/\nErwarteter Exit-Code: {0}\nIhr Exit-Code: {1}\n\n### Erwartete Ausgabe: ###\n{2}\n\n\n### Ihre Ausgabe: ###\n{3}".format(exit_code_example,exit_code_submission,output_example,output_submission),"Wrong exit-code")
 			return	
 
+		# Existenz der Ausgabe prüfen
+		if re.sub('\s','',output_example) == "":
+			job.send_fail_result("Validatorfehler :(", "Ihr cpp-example erzeugt keine Ausgabe!")
+			return
+		if re.sub('\s','',output_submission) == "":
+			job.send_fail_result("Ihr Programm erzeugt keine Ausgabe!")
+			return
+
+		
+
 		# Output vergleichen
-		original_example = output_example
-		original_submission = output_submission
 		ok, debug_text = compare(output_example,output_submission,config)
 		
 		info_student = notes+"\n### Erwartete Ausgabe: ###\n"+output_example+"\n\n### Ihre Ausgabe: ###\n"+output_submission+"\n\nLeider enthält Ihr Code nicht die erwartete Ausgabe :/"
@@ -383,6 +376,5 @@ def validate(job):
 			return
 
 	# Alle Tests erfolgreich
-	print("\nSende an Server:\nAll tests passed. Awesome!")
 	job.send_pass_result('All tests passed. Awesome!', "All tests passed.")
 	

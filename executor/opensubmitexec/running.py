@@ -2,6 +2,7 @@ import pexpect
 import os
 import time
 import tempfile
+import re
 
 from .exceptions import *
 
@@ -62,7 +63,8 @@ class RunningProgram(pexpect.spawn):
 		# Open temporary file for reading, in text mode
 		# This makes sure that the file pointer for writing
 		# is not touched
-		output = ''.join(open(self._logfile.name,errors='ignore').readlines())
+		output = ''.join(open(self._logfile.name,'r', encoding="utf-8", errors='replace').readlines())
+		output = re.sub('[^ -~\säöüÄÖÜß€]','?',output)
 		if self.job._config.get("Server", "secret") in output:			# 2020 Denz: New little security-feature
 			raise SecurityException
 		return output
