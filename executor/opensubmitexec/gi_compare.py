@@ -35,14 +35,15 @@ def compare(output_example : str, output_submission : str, config : {}):
 		dprint('- random_order_characters')
 	dprint()
 	"""
-	dprint('### Beispieltext: ###')
+	print("Debug")
+	print('### Beispieltext: ###')
 	for e in output_example.split('\n'):
-		dprint('|'+e+'|')
-	dprint()
-	dprint('### Zu vergleichender Text ###')
+		print('|'+e+'|')
+	print()
+	print('### Zu vergleichender Text ###')
 	for e in output_submission.split('\n'):
-		dprint('|'+e+'|')
-	dprint()
+		print('|'+e+'|')
+	print()
 	"""
 		
 	# Everything in lower case? (Default)
@@ -84,14 +85,18 @@ def compare(output_example : str, output_submission : str, config : {}):
 	# Split lines into characters
 	for line in range(len(output_example)):
 		for word in range(len(output_example[line])):
-			if config['remove_whitespaces'] or config['skip_characters'] or config['random_order_characters']:
+			if config['skip_characters'] or config['random_order_characters']:
 				output_example[line][word] = list(re.sub('\s','',output_example[line][word]))
+			elif config['remove_whitespaces']:
+				output_example[line][word] = [re.sub('\s','',output_example[line][word])]
 			else:
 				output_example[line][word] = [output_example[line][word]]
 	for line in range(len(output_submission)):
 		for word in range(len(output_submission[line])):
-			if config['remove_whitespaces'] or config['skip_characters'] or config['random_order_characters']:
+			if config['skip_characters'] or config['random_order_characters']:
 				output_submission[line][word] = list(re.sub('\s','',output_submission[line][word]))
+			elif config['remove_whitespaces']:
+				output_submission[line][word] = [re.sub('\s','',output_submission[line][word])]
 			else:
 				output_submission[line][word] = [output_submission[line][word]]
 	
@@ -112,7 +117,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 	for line in output_example:
 		dprint('|',end='')
 		for word in line:
-			dprint(' [',end='')
+			dprint('[',end='')
 			for letter in word:
 				dprint('['+letter+']',end='')
 			dprint(']  ',end='')
@@ -122,7 +127,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 	for line in output_submission:
 		dprint('|',end='')
 		for word in line:
-			dprint(' [',end='')
+			dprint('[',end='')
 			for letter in word:
 				dprint('['+letter+']',end='')
 			dprint(']  ',end='')
@@ -185,8 +190,13 @@ def compare(output_example : str, output_submission : str, config : {}):
 	# skip first lines
 	if config['skip_first_lines']:
 		try:
-			while compare_words(output_example[0],output_submission[0],config) == False:
-				output_submission.pop(0)
+			ready = False
+			while not ready:
+				for i in range(len(output_example)):
+					if not ready and compare_words(output_example[i],output_submission[0],config):
+						ready = True
+				if not ready:
+					output_submission.pop(0)
 		except:
 			return False, debug_text
 
@@ -212,11 +222,15 @@ if __name__ == '__main__':
 	config['random_order_words'] = False		# Default = False
 	config['random_order_characters'] = False	# Default = False
 
-	output_example = '''puma | [3] [4] | rechts
-katze ist NICHT in der Matrix enthalten.
+	output_example = '''baum ist NICHT in der Matrix enthalten.
+luchs | [20] [20] | hoch
+leopard | [12] [7] | links'''
+	output_submission = '''geegr
+	rgerg
 leopard | [12] [7] | links
+luchs | [20] [20] | hoch
+baum ist NICHT in der Matrix enthalten.
 '''
-	output_submission = ""
 
 	
 	equal, debug_text = compare(output_example,output_submission,config)
