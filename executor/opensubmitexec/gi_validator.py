@@ -8,12 +8,14 @@ import logging
 import time
 import sys
 from opensubmitexec.gi_compare import compare
+from .exceptions import *
 logger = logging.getLogger('opensubmitexec')
 
 
 def validate(job):
+	logger.debug("start gi_validator")
 	if len(job.validator_files) == 1:
-		fname_main = job.validator_files[1]
+		fname_example = job.validator_files[0]
 		fname_main = None
 	else:
 		cpp_files = []
@@ -143,14 +145,7 @@ def validate(job):
 		fname_submission = job.student_files[0]
 	submission = read_file(fname_submission)
 	
-	""" Kompiliere zunächst die Abgabe """
-	logger.debug("::: Kompiliere zunaechst die Abgabe.")
-	if not re.search("int(\n| )+main(\n| )*[(].*[)](\n| )*{",submission):
-		logger.debug("::: main() existiert nicht. -> Füge main() hinzu.")
-		with open(job.working_dir+fname_submission, 'w',encoding="utf-8") as f:
-			f.write(submission + 'int main(){return 0;}')
-	job.run_compiler(compiler=GPP, inputs=[fname_submission], output='submission')
-	logger.debug("::: 1. Kompilierung erfolgreich.")
+
 
 	""" Kommentare entfernen """
 	def remove_comments(data: str) -> str:
@@ -162,6 +157,15 @@ def validate(job):
 		return data
 	example = remove_comments(example)
 	submission = remove_comments(submission)
+
+	""" Kompiliere zunächst die Abgabe """
+	logger.debug("::: Kompiliere zunaechst die Abgabe.")
+	if not re.search("int(\n| )+main(\n| )*[(].*[)](\n| )*{",submission):
+		logger.debug("::: main() existiert nicht. -> Füge main() hinzu.")
+		with open(job.working_dir+fname_submission, 'w',encoding="utf-8") as f:
+			f.write(submission + 'int main(){return 0;}')
+	job.run_compiler(compiler=GPP, inputs=[fname_submission], output='submission')
+	logger.debug("::: 1. Kompilierung erfolgreich.")
 
 	""" ggf. main-Funktion umbenennen """
 	if fname_main and re.search('int(\n| )+main(\n| )*[(].*[)](\n| )*{',main):
@@ -243,7 +247,14 @@ def validate(job):
 		main = main.replace(fname_example,fname_submission)
 		with open(job.working_dir+fname_main, 'w',encoding="utf-8") as f:
 			f.write(main)
-		job.run_compiler(compiler=GPP, inputs=[fname_main], output='submission')
+		try:
+			job.run_compiler(compiler=GPP, inputs=[fname_main], output='submission')
+		except Exception as e:
+			if type(e) is WrongExitStatusException and "was not declared" in e.output: # Funktionen der main.cpp werden nicht in der submission.cpp gefunden
+				job.send_fail_result("Es wurden nicht alle benötigten Funktionen/Klassen gefunden! Bitte halten Sie sich an die Aufgabenstellung!",'Output of '+e.instance.name+'so far: '+e.output)
+				return
+			else:
+				raise e
 
 	""" create test-cases """
 	def createTests(config : {}) -> [str]:
@@ -289,33 +300,35 @@ def validate(job):
 		else:
 			# Example ausführen
 			running_example = job.spawn_program('./example', [test], echo=config['echo_input'])
-			for word in test.split():
-				time.sleep(config['input_time'])
-				running_example.sendline(word)
+			running_submission = job.spawn_program('./submission', [test], echo=config['echo_input'])
+			if config['echo_input']:
+				for word in test.split():
+					time.sleep(config['input_time'])
+					running_example.sendline(word)
+					running_submission.sendline(word)
+			else:
+				running_example.sendline(test)
+				running_submission.sendline(test)
 			exit_code_example, output_example = running_example.expect_end()
+			exit_code_submission, output_submission = running_submission.expect_end()
 			l = len(test)
 			output_example = output_example[l+1:]
-			
-			# Submission ausführen
-			running_submission = job.spawn_program('./submission', [test], echo=config['echo_input'])
-			for word in test.split():
-				time.sleep(config['input_time'])
-				running_submission.sendline(word)
-			exit_code_submission, output_submission = running_submission.expect_end()
 			output_submission = output_submission[l+1:]
-
-
+			
+		
 		
 		# Notizen in example suchen
 		output_notes = []
+		notes = ''
 		while("<COMMENT>" in output_example) and ("</COMMENT>" in output_example):
 			pos1 = output_example.find("<COMMENT>")
 			pos2 = output_example.find("</COMMENT>")
 			output_notes.append(output_example[pos1+9:pos2])
 			output_example = output_example[:pos1]+output_example[pos2+10:]
-		notes = "Hinweis:"
-		for note in output_notes:
-			notes = note+"\n"
+		if output_notes:
+			notes = "Hinweis:"
+			for note in output_notes:
+				notes = note+"\n"
 		# Notizen in submission suchen
 		while("<COMMENT>" in output_submission) and ("</COMMENT>" in output_submission):
 			pos1 = output_submission.find("<COMMENT>")
@@ -332,7 +345,7 @@ def validate(job):
 			pos1 = output_submission.find("<HIDDEN>")
 			pos2 = output_submission.find("</HIDDEN>")
 			output_submission = output_submission[:pos1]+output_submission[pos2+9:]
-			
+		
 		# Leeren Anfang und Ende entfernen
 		output_example = output_example.strip()
 		output_submission = output_submission.strip()
@@ -344,6 +357,9 @@ def validate(job):
 			output_example = output_example[:-1].strip()
 		while output_submission and output_submission[-1] == '\n':
 			output_submission = output_submission[:-1].strip()
+
+		# DEBUG_OUTPUT
+		print(output_submission)
 
 		# Exit-Codes vergleichen  
 		if exit_code_submission == None:
@@ -376,5 +392,5 @@ def validate(job):
 			return
 
 	# Alle Tests erfolgreich
-	job.send_pass_result('All tests passed. Awesome!', "All tests passed.")
+	job.send_pass_result('All tests passed. Awesome!', '### Submission Output: ###\n' + str(output_submission)+'\n\n'+info_tutor)
 	

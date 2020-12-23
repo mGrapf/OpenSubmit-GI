@@ -81,7 +81,7 @@ class InternalJob():
 			text_tutor = None
 			
 			if type(e) is TerminationException:
-				if self.gi_validator == True:								# 2020 Denz
+				if self.gi_validator == True and e.output:								# 2020 Denz
 					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
 						pos1 = e.output.find("<COMMENT>")
 						pos2 = e.output.find("</COMMENT>")
@@ -97,7 +97,7 @@ class InternalJob():
 				text_student += "\n\nOutput so far:\n" + e.output
 				#text_tutor += "\n\nOutput so far:\n" + e.output
 			elif type(e) is TimeoutException:
-				if self.gi_validator == True:								# 2020 Denz
+				if self.gi_validator == True and e.output:								# 2020 Denz
 					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
 						pos1 = e.output.find("<COMMENT>")
 						pos2 = e.output.find("</COMMENT>")
@@ -113,7 +113,7 @@ class InternalJob():
 				text_student += "\n\nOutput so far:\n" + e.output
 				#text_tutor += "\n\nOutput so far:\n" + e.output
 			elif type(e) is NestedException:
-				if self.gi_validator == True:								# 2020 Denz
+				if self.gi_validator == True and e.output:								# 2020 Denz
 					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
 						pos1 = e.output.find("<COMMENT>")
 						pos2 = e.output.find("</COMMENT>")
@@ -131,7 +131,7 @@ class InternalJob():
 				text_student += "\n\nOutput so far:\n" + e.output
 				#text_tutor += "\n\nOutput so far:\n" + e.output
 			elif type(e) is WrongExitStatusException:
-				if self.gi_validator == True:								# 2020 Denz
+				if self.gi_validator == True and e.output:								# 2020 Denz
 					while("<COMMENT>" in e.output) and ("</COMMENT>" in e.output):
 						pos1 = e.output.find("<COMMENT>")
 						pos2 = e.output.find("</COMMENT>")

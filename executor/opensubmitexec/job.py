@@ -133,7 +133,7 @@ class Job(InternalJob):
         prog = RunningProgram(self, *compiler_cmdline(compiler=compiler,
                                                       inputs=inputs,
                                                       output=output))
-        prog.expect_exit_status(0)
+        return prog.expect_exit_status(0)
 
     def run_build(self, compiler=GCC, inputs=None, output=None):
         """Combined call of 'configure', 'make' and the compiler.

@@ -242,7 +242,7 @@ def fake_fetch_job(config, src):
 				cpp_files.append(file)
 		
 		job.student_files = None
-		job.validator_files = None
+		job.validator_files = []
 		job.gi_validator = True
 		if 'submission.cpp' in cpp_files:
 			job.student_files = ['submission.cpp']
@@ -251,7 +251,14 @@ def fake_fetch_job(config, src):
 		
 		if len(cpp_files) == 1:
 			job.validator_files = cpp_files
-		elif len(cpp_files) == 2:
+		else:
+			if 'validator_main.cpp' in cpp_files:
+				job.validator_files += ['validator_main.cpp']
+			if 'validator_example.cpp' in cpp_files:
+				job.validator_files += ['validator_example.cpp']
+			print(job.validator_files)
+			
+		if not job.validator_files and len(cpp_files) == 2:
 			for file in cpp_files:
 				with open (job.working_dir+file, "r",encoding="utf-8") as cpp:
 					code = cpp.read()
@@ -261,6 +268,7 @@ def fake_fetch_job(config, src):
 						cpp_files.remove(file)
 						job.validator_files = cpp_files + job.validator_files
 						break
+
 		if not job.validator_files:
 			logger.error("Error: No validator (*.cpp) found.")
 			return None
@@ -268,7 +276,7 @@ def fake_fetch_job(config, src):
 		
 		if not job.student_files:
 			logger.debug("No Student files found. Copying {0} to submission.cpp".format(job.validator_files[-1]))
-			shutil.copy(job.working_dir+job.validator_files[0], job.working_dir+'submission.cpp')
+			shutil.copy(job.working_dir+job.validator_files[-1], job.working_dir+'submission.cpp')
 			job.student_files = ['submission.cpp']
 		
 		

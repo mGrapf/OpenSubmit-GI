@@ -64,7 +64,7 @@ class RunningProgram(pexpect.spawn):
 		# This makes sure that the file pointer for writing
 		# is not touched
 		output = ''.join(open(self._logfile.name,'r', encoding="utf-8", errors='replace').readlines())
-		output = re.sub('[^ -~\säöüÄÖÜß€]','?',output)
+		output = re.sub('[^ -~\säöüÄÖÜß€[]]','<?>',output)
 		if self.job._config.get("Server", "secret") in output:			# 2020 Denz: New little security-feature
 			raise SecurityException
 		return output
