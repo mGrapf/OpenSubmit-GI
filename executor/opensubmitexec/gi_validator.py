@@ -150,7 +150,7 @@ def validate(job):
 	""" Kommentare entfernen """
 	def remove_comments(data: str) -> str:
 		data = re.sub("//.*\n", "\n", data)
-		while re.search("/[*]",data):
+		while re.search("/[*]",data) and re.search("[*]/",data):
 			pos = re.search("/[*]",data).span()[0]
 			pos2 = re.search("[*]/",data).span()[1]
 			data = data[:pos] + data[pos2:]
@@ -251,7 +251,7 @@ def validate(job):
 			job.run_compiler(compiler=GPP, inputs=[fname_main], output='submission')
 		except Exception as e:
 			if type(e) is WrongExitStatusException and "was not declared" in e.output: # Funktionen der main.cpp werden nicht in der submission.cpp gefunden
-				job.send_fail_result("Es wurden nicht alle benötigten Funktionen/Klassen gefunden! Bitte halten Sie sich an die Aufgabenstellung!",'Output of '+e.instance.name+'so far: '+e.output)
+				job.send_fail_result("Es wurden nicht alle benötigten Funktionen/Klassen gefunden! Bitte halten Sie sich an die Aufgabenstellung!",'Output of '+e.instance.name+': '+e.output)
 				return
 			else:
 				raise e
@@ -309,13 +309,14 @@ def validate(job):
 			else:
 				running_example.sendline(test)
 				running_submission.sendline(test)
+			time.sleep(1)
 			exit_code_example, output_example = running_example.expect_end()
 			exit_code_submission, output_submission = running_submission.expect_end()
+			print("DEBUG: EXITCODE = "+str(exit_code_submission))
+			print("DEBUG: TEXT = "+str(output_submission))
 			l = len(test)
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
-			
-		
 		
 		# Notizen in example suchen
 		output_notes = []
