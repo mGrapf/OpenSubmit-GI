@@ -164,12 +164,14 @@ def prepare_working_directory(job, submission_path, validator_path):
 
 	submission_fname = os.path.basename(submission_path)
 	validator_fname = os.path.basename(validator_path)
+	
 
 	# Un-archive student submission
 	single_dir, did_unpack = unpack_if_needed(job.working_dir, submission_path)
 	job.student_files = os.listdir(job.working_dir)
-	if did_unpack:
-		job.student_files.remove(submission_fname)
+
+	#if did_unpack:														# 2021 - BUG? -> datei wurde bereits entfernt
+	#	job.student_files.remove(submission_fname)
 
 	# Fail automatically on empty student submissions
 	if len(job.student_files) is 0:
