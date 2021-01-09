@@ -42,7 +42,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 		dprint('- random_order_words')
 	if config['random_order_characters']:
 		dprint('- random_order_characters')
-	
+
 	# Replace some strings?
 	replace_example = output_example
 	replace_submission = output_submission
@@ -146,9 +146,6 @@ def compare(output_example : str, output_submission : str, config : {}):
 			tmp.append(s)
 	output_submission = tmp
 
-
-	
-	
 	
 	# Compare characters individually
 	def compare_characters(output_example,output_submission,config):
@@ -250,9 +247,7 @@ if __name__ == '__main__':
 	config['group_lines'] = False				# Default = False
 	config['group_words'] = False				# Default = False
 
-	config['skip_first'] = True
-
-	config['skip_first_lines'] = False			# Defaylt = False
+	config['skip_first_lines'] = True			# Defaylt = False
 	config['skip_lines'] = False				# Default = False
 
 	config['skip_words'] = False				# Default = False
@@ -262,12 +257,16 @@ if __name__ == '__main__':
 	config['random_order_words'] = False		# Default = False
 	config['random_order_characters'] = False	# Default = False
 
-	output_example = '''5
-1x5 Euro'''
-	output_submission = '''Betrag eingeben: 5
-1x5 Euro
+	output_example = '''puma | [3] [4] | rechts
+katze ist NICHT in der Matrix enthalten.
+fuchs | [8] [15] | runter
 '''
+	output_submission = '''Wort 1 eingeben: Wort 2 eingeben: Wort 3 eingeben: 
 
+puma |[3] [4]| rechts
+katze ist in der Matrix nicht enthalten.
+fuchs |[8] [15]| runter
+'''
 	
 	equal, debug_text = compare(output_example,output_submission,config)
 	print(debug_text)

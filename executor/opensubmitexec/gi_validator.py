@@ -312,8 +312,6 @@ def validate(job):
 			time.sleep(1)
 			exit_code_example, output_example = running_example.expect_end()
 			exit_code_submission, output_submission = running_submission.expect_end()
-			print("DEBUG: EXITCODE = "+str(exit_code_submission))
-			print("DEBUG: TEXT = "+str(output_submission))
 			l = len(test)
 			output_example = output_example[l+1:]
 			output_submission = output_submission[l+1:]
@@ -359,8 +357,6 @@ def validate(job):
 		while output_submission and output_submission[-1] == '\n':
 			output_submission = output_submission[:-1].strip()
 
-		# DEBUG_OUTPUT
-		print(output_submission)
 
 		# Exit-Codes vergleichen  
 		if exit_code_submission == None:
