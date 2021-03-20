@@ -1,5 +1,5 @@
-Über OpenSubmit-GI
-==================
+Über OpenSubmit
+===============
 
 Dies ist ein Fork des OpenSubmit-Projekts: https://github.com/troeger/opensubmit
 
