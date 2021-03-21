@@ -112,7 +112,7 @@ def console_script():
 	
 	if sys.argv[1] == "configcreate":
 		if len(sys.argv)<=2 or sys.argv[2][0] == '-':
-			print("usage: opensubmit-exec configcreate <server_url> [-c <config_file>] [-i <uuid>] [-s <secret>] [-u <user>]")
+			print("usage: opensubmit-exec configcreate <server_url> [-c <config_file>] [-i <id>] [-s <secret>] [-u <user>]")
 			return 1
 		server_url = sys.argv[2]
 		

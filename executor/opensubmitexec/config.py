@@ -218,9 +218,9 @@ def create_config(config_fname, override_url=None, override_uuid=None, override_
 	if override_url:
 		settings['url'] = override_url
 	if override_uuid:															# 2020 Denz
-		settings['secret'] = override_uuid
+		settings['secret'] = override_secret
 	if override_secret:															# 2020 Denz
-		settings['uuid'] = override_secret
+		settings['uuid'] = override_uuid
 	if override_user:															# 2020 Denz
 		settings['user'] = override_user
 
