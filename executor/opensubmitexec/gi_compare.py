@@ -8,47 +8,55 @@ def compare(output_example : str, output_submission : str, config : {}):
 	def dprint(text='', end='\n'):
 		nonlocal debug_text
 		debug_text += text + end
-
-	
-	# Remove whitespaces left and right
-	output_example = output_example.strip()
-	output_submission = output_submission.strip()
 	
 	# Everything in lower case? (Default)
-	if config['compare_case_sensitive']:
-		dprint('- compare_case_sensitive')
-	else:
+	if config['compare_case_insensitive']:
+		dprint('- compare_case_insensitive')
 		output_example = output_example.lower()
 		output_submission = output_submission.lower()
 		
+	# group?
+	if config['skip_first_lines'] or config['skip_lines'] or config['random_line_order']:
+		config['compare_line_by_line'] = True
+	if config['skip_words'] or config['random_word_order']:
+		config['compare_word_by_word'] = True
+	if config['skip_chars'] or config['random_char_order']:
+		group_whitespaces = True
+	else:
+		group_whitespaces = False
 	
-	if config['remove_whitespaces']:
-		dprint('- remove_whitespaces')
-	if config['group_lines']:
-		dprint('- group_lines')
-	if config['group_words']:
-		dprint('- group_words')
+	
+	if config['compare_whitespaces']:
+		dprint('- compare_whitespaces')
+	if config['compare_line_by_line']:
+		dprint('- compare_line_by_line')
+	if config['compare_word_by_word']:
+		dprint('- compare_word_by_word')
 	if config['skip_first_lines']:
 		dprint('- skip_first_lines')
 	if config['skip_lines']:
 		dprint('- skip_lines')
 	if config['skip_words']:
 		dprint('- skip_words')
-	if config['skip_characters']:
-		dprint('- skip_characters')
-	if config['random_order_lines']:
-		dprint('- random_order_lines')
-	if config['random_order_words']:
-		dprint('- random_order_words')
-	if config['random_order_characters']:
-		dprint('- random_order_characters')
+	if config['skip_chars']:
+		dprint('- skip_chars')
+	if config['random_line_order']:
+		dprint('- random_line_order')
+	if config['random_word_order']:
+		dprint('- random_word_order')
+	if config['random_char_order']:
+		dprint('- random_char_order')
+		
+	# Replace Tabs
+	output_example = output_example.replace('\t','    ');
+	output_submission = output_submission.replace('\t','    ');
 
 	# Replace some strings?
 	replace_example = output_example
 	replace_submission = output_submission
 	for key, value in config.items():
-		if 'replace' in key and value:
-			if not config['compare_case_sensitive']:
+		if 'replace_' in key and value:
+			if config['compare_case_insensitive']:
 				value = value.lower()
 			value = re.split('" *-> *"',value[1:-1])
 			
@@ -70,7 +78,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 			dprint('- compare_only_numbers: error (string would be empty)')
 
 	if debug_text:
-		debug_text = '### Konfiguration: ###\n'+debug_text
+		debug_text = '### Comparison configuration:\n'+debug_text
 
 	"""
 	print("Debug")
@@ -86,32 +94,43 @@ def compare(output_example : str, output_submission : str, config : {}):
 	
 	if output_example == "":
 		raise Exception('The string "output_example" is empty')
-	dprint()
+	if debug_text:
+		dprint()
 	
-	# group?
-	if config['skip_first_lines'] or config['skip_lines'] or config['random_order_lines']:
-		config['group_lines'] = True
-	if config['skip_words'] or config['random_order_words']:
-		config['group_words'] = True
-
+	
+	
 	
 	
 	# Split text into lines
-	if config['group_lines']:
+	if config['compare_line_by_line']:
 		output_example = output_example.split('\n')
 		output_submission = output_submission.split('\n')
 	else:
-		output_example = [output_example]
-		output_submission = [output_submission]
+		output_example = [output_example.replace('\n',' ')]
+		output_submission = [output_submission.replace('\n',' ')]
+	
+	
+	# Remove whitespaces left and right
+	tmp = []
+	for output in output_example:
+		if output.strip():
+			tmp.append(output.strip())
+	output_example = tmp
+	tmp = []
+	for output in output_submission:
+		if output.strip():
+			tmp.append(output.strip())
+	output_submission = tmp
+	
 	
 	# Split lines into words
 	for line in range(len(output_example)):
-		if config['group_words']:
+		if config['compare_word_by_word']:
 			output_example[line] = output_example[line].split()
 		else:
 			output_example[line] = [output_example[line]]
 	for line in range(len(output_submission)):
-		if config['group_words']:
+		if config['compare_word_by_word']:
 			output_submission[line] = output_submission[line].split()
 		else:
 			output_submission[line] = [output_submission[line]]
@@ -119,20 +138,38 @@ def compare(output_example : str, output_submission : str, config : {}):
 	# Split lines into characters
 	for line in range(len(output_example)):
 		for word in range(len(output_example[line])):
+			if not config['compare_whitespaces']:
+				output_example[line][word] = re.sub('\s','',output_example[line][word])
+			if group_whitespaces:
+				#output_example[line][word] = list(re.sub('\s','',output_example[line][word]))
+				output_example[line][word] = list(output_example[line][word])
+			else:
+				output_example[line][word] = [output_example[line][word]]
+			"""
 			if config['skip_characters'] or config['random_order_characters']:
 				output_example[line][word] = list(re.sub('\s','',output_example[line][word]))
 			elif config['remove_whitespaces']:
 				output_example[line][word] = [re.sub('\s','',output_example[line][word])]
 			else:
 				output_example[line][word] = [output_example[line][word]]
+			"""
 	for line in range(len(output_submission)):
 		for word in range(len(output_submission[line])):
+			if not config['compare_whitespaces']:
+				output_submission[line][word] = re.sub('\s','',output_submission[line][word])
+			if group_whitespaces:
+				#output_submission[line][word] = list(re.sub('\s','',output_submission[line][word]))
+				output_submission[line][word] = list(output_submission[line][word])
+			else:
+				output_submission[line][word] = [output_submission[line][word]]
+			"""
 			if config['skip_characters'] or config['random_order_characters']:
 				output_submission[line][word] = list(re.sub('\s','',output_submission[line][word]))
 			elif config['remove_whitespaces']:
 				output_submission[line][word] = [re.sub('\s','',output_submission[line][word])]
 			else:
 				output_submission[line][word] = [output_submission[line][word]]
+			"""
 	
 	# remove empty lines
 	tmp = []
@@ -147,32 +184,32 @@ def compare(output_example : str, output_submission : str, config : {}):
 	output_submission = tmp
 
 	
-	# Compare characters individually
+	# Compare characters individually	-> [c][c]
 	def compare_characters(output_example,output_submission,config):
 		output_example = output_example.copy()
 		output_submission = output_submission.copy()
 		i = 0
 		for e in output_example:
 			try:
-				if config['random_order_characters']:
+				if config['random_char_order']:
 					i = 0
 				while(e != output_submission[i]):
 					i += 1
 				output_submission.pop(i)
 			except Exception as e:
 				return False
-		if output_submission and not config['skip_characters']:
+		if output_submission and not config['skip_chars']:
 			return False
 		return True
 	
-	# Compare words individually
+	# Compare words individually	-> [ w[c][c] ]
 	def compare_words(output_example,output_submission,config):
 		output_example = output_example.copy()
 		output_submission = output_submission.copy()
 		i = 0
 		for e in output_example:
 			try:
-				if config['random_order_words']:
+				if config['random_word_order']:
 					i = 0;
 				while compare_characters(e,output_submission[i],config) == False:
 					i += 1
@@ -183,12 +220,12 @@ def compare(output_example : str, output_submission : str, config : {}):
 			return False
 		return True
 	
-	# Compare lines individually
+	# Compare lines individually	-> [l [ w[c][c] ] ]
 	def compare_lines(output_example,output_submission,config):
 		i = 0
 		for e in output_example:
 			try:
-				if config['random_order_lines']:
+				if config['random_line_order']:
 					i = 0;
 				while compare_words(e,output_submission[i],config) == False:
 					i += 1
@@ -213,25 +250,49 @@ def compare(output_example : str, output_submission : str, config : {}):
 			return False, debug_text
 	
 	# Text output for demonstration
-	dprint('### Debug: Beispieltext: ###')
+	dprint('### Last Example Output:')
 	for line in output_example:
-		dprint('|',end='')
+		if not config['compare_word_by_word'] and not group_whitespaces:
+			dprint('|',end='')
 		for word in line:
-			dprint('[',end='')
+			if config['compare_word_by_word'] and not group_whitespaces:
+				dprint('[',end='')
 			for letter in word:
-				dprint('['+letter+']',end='')
-			dprint(']  ',end='')
-		dprint('|')
+				if group_whitespaces:
+					dprint('['+letter+']',end='')
+				else:
+					dprint(letter,end='')
+			if config['compare_word_by_word']:
+				if not group_whitespaces:
+					dprint('] ',end='')
+				else:
+					dprint(' ',end='')
+		if not config['compare_word_by_word'] and not group_whitespaces:
+			dprint('|')
+		else:
+			dprint('')
 	dprint()
-	dprint('### Debug: Submission Text: ###')
+	dprint('### Last Submission Output:')
 	for line in output_submission:
-		dprint('|',end='')
+		if not config['compare_word_by_word'] and not group_whitespaces:
+			dprint('|',end='')
 		for word in line:
-			dprint('[',end='')
+			if config['compare_word_by_word'] and not group_whitespaces:
+				dprint('[',end='')
 			for letter in word:
-				dprint('['+letter+']',end='')
-			dprint(']  ',end='')
-		dprint('|')
+				if group_whitespaces:
+					dprint('['+letter+']',end='')
+				else:
+					dprint(letter,end='')
+			if config['compare_word_by_word']:
+				if not group_whitespaces:
+					dprint('] ',end='')
+				else:
+					dprint(' ',end='')
+		if not config['compare_word_by_word'] and not group_whitespaces:
+			dprint('|')
+		else:
+			dprint('')
 
 	result = compare_lines(output_example,output_submission,config)
 	return result, debug_text
@@ -239,33 +300,30 @@ def compare(output_example : str, output_submission : str, config : {}):
 
 if __name__ == '__main__':
 	config = {}
-	config['compare_case_sensitive'] = False	# Default = False
+	config['compare_case_insensitive'] = True	# Default = False
 	config['compare_only_numbers'] = False		# Default = False
-	config['remove_whitespaces'] = True			# Default = False
-	config['replace'] = '"Matrix enthalten." -> "Matrix enthalten"'
+	
+#	config['remove_whitespaces'] = False		# Default = False -> wird bald entfernt
+	config['replace_text_1'] = '"Matrix enthalten." -> "Matrix enthalten"'
 
-	config['group_lines'] = False				# Default = False
-	config['group_words'] = False				# Default = False
+	
+	config['compare_line_by_line'] = False		# Default = False
+	config['compare_word_by_word'] = True		# Default = False
+	config['compare_whitespaces'] = True		# Default = False
 
-	config['skip_first_lines'] = True			# Defaylt = False
+	config['skip_first_lines'] = False			# Defaylt = False
 	config['skip_lines'] = False				# Default = False
 
 	config['skip_words'] = False				# Default = False
-	config['skip_characters'] = False			# Default = False
+	config['skip_chars'] = False			# Default = False
 	
-	config['random_order_lines'] = True		# Default = False
-	config['random_order_words'] = False		# Default = False
-	config['random_order_characters'] = False	# Default = False
+	config['random_line_order'] = False		# Default = False
+	config['random_word_order'] = False		# Default = False
+	config['random_char_order'] = False	# Default = False
 
-	output_example = '''puma | [3] [4] | rechts
-katze ist NICHT in der Matrix enthalten.
-fuchs | [8] [15] | runter
+	output_example = '''Hello World
 '''
-	output_submission = '''Wort 1 eingeben: Wort 2 eingeben: Wort 3 eingeben: 
-
-puma |[3] [4]| rechts
-katze ist in der Matrix nicht enthalten.
-fuchs |[8] [15]| runter
+	output_submission = '''hello  world
 '''
 	
 	equal, debug_text = compare(output_example,output_submission,config)

@@ -135,17 +135,6 @@ def console_script():
 		config = read_config(config_fname)
 		break_lock(config)
 		return 0
-
-	if sys.argv[1] == "run_old":
-		config = read_config(config_fname)
-		# Perform additional precautions for unattended mode in cron
-		kill_longrunning(config)
-		
-		jobs = True
-		while jobs:
-			with ScriptLock(config):
-				jobs = download_and_run(config)
-		return 0
 	
 	if sys.argv[1] == "run":
 		config = read_config(config_fname)
@@ -167,8 +156,8 @@ def console_script():
 		return 0
 			   
 	if sys.argv[1] == "test":
-		if len(sys.argv)<=2 or sys.argv[2][0] == '-':
-			print("usage: opensubmit-exec test <dir> [-c <config_file>]")
+		if len(sys.argv)<=2:
+			print("usage: \t\"opensubmit-exec test <dir>\" \nor: \t\"opensubmit-exec test <file_1> <file_2> ...\"")
 			return 1
 		config = read_config(config_fname)
 		copy_and_run(config, sys.argv[2:])

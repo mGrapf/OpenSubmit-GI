@@ -40,6 +40,7 @@ class Job(InternalJob):
     author_names = None
     course = None
     assignment = None
+    gi_validator = False
 
     @property
     # The file name of the validation / full test script

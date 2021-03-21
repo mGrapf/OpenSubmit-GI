@@ -7,7 +7,7 @@ import tarfile
 import os
 import tempfile
 import shutil
-
+import re
 from .exceptions import JobException
 
 import logging
@@ -42,8 +42,8 @@ def unpack_if_needed(destination_path, fpath):
 	did_unpack = False
 
 	dircontent = os.listdir(destination_path)
-	logger.debug("Content of %s before unarchiving: %s" %
-				 (destination_path, str(dircontent)))
+	
+	
 
 	# Perform un-archiving, in case
 	if zipfile.is_zipfile(fpath):
@@ -105,11 +105,10 @@ def unpack_if_needed(destination_path, fpath):
 				"File at %s is a single non-archive file, copying it to %s" % (fpath, destination_path))
 			shutil.copy(fpath, destination_path)
 
-	dircontent = os.listdir(destination_path)
-	logger.debug("Content of %s after unarchiving: %s" %
-				 (destination_path, str(dircontent)))
-	if did_unpack:														# Denz: Delete unzipped file
-		os.remove(fpath)
+	if did_unpack:
+		os.remove(fpath)												# Denz: Delete unzipped file
+		dircontent = os.listdir(destination_path)
+		logger.debug("Content of %s after unarchiving: %s" % (destination_path, str(dircontent)))
 	return single_dir, did_unpack
 
 
@@ -136,6 +135,33 @@ def create_working_dir(config, prefix):
 
 	return finalpath
 
+def find_cpp_config(working_dir, cpp_files : []):
+	example = None
+	main = None
+	config = None
+	# Try to read info from files
+	for main_cpp in cpp_files:
+		with open (working_dir+main_cpp, "r",encoding="utf-8") as file:
+			code = file.read()
+			if "[CONFIG]" in code and ";EOF" in code:
+				config = main_cpp
+			if len(cpp_files) == 1:
+				example = cpp_files[0]
+			if not example:
+				for example_cpp in cpp_files:
+					if re.search("#include \""+example_cpp+"\"",code):
+						example = example_cpp
+						main = main_cpp
+						break
+	if config and not example:
+		example = config
+	# Prepare dir for GI validator				
+	if example and not main:
+		main = "fake-main.cpp"
+		logger.debug("Create empty main cpp: {0}".format(main))
+		with open(working_dir+main, 'w',encoding="utf-8") as f:
+			f.write("#include \""+example+"\"\n")
+	return example, main, config
 
 def prepare_working_directory(job, submission_path, validator_path):
 	'''
@@ -165,13 +191,11 @@ def prepare_working_directory(job, submission_path, validator_path):
 	submission_fname = os.path.basename(submission_path)
 	validator_fname = os.path.basename(validator_path)
 	
-
 	# Un-archive student submission
 	single_dir, did_unpack = unpack_if_needed(job.working_dir, submission_path)
 	job.student_files = os.listdir(job.working_dir)
-
-	#if did_unpack:														# 2021 - BUG? -> datei wurde bereits entfernt
-	#	job.student_files.remove(submission_fname)
+	
+	
 
 	# Fail automatically on empty student submissions
 	if len(job.student_files) is 0:
@@ -206,28 +230,42 @@ def prepare_working_directory(job, submission_path, validator_path):
 		logger.error(info_tutor)
 		raise JobException(info_student=info_student, info_tutor=info_tutor)
 
-	job.gi_validator = False											# 2020 Denz: job.gi_validator -> Variable indicates whether gi_validator is used.
-	if not os.path.exists(job.validator_script_name):					# 2020 Denz: The gi_validator is only used if no validator.py was found.
-		job.validator_files = os.listdir(job.working_dir)
-		for fname in job.student_files:									# 2020 Denz: job.validator_files -> The validator can use several files.
-			job.validator_files.remove(fname)
-		if any("cpp" in s.split(".")[-1] for s in job.validator_files):	# 2020 Denz: Search for cpp-file to use the gi-validator
-			logger.debug(":: No validator.py, but a cpp file found. The gi_validator is used.".format(job.student_files))
-			job.gi_validator = True
-		
-		elif did_unpack:
-			# The download was an archive, but the validator was not inside.
-			# This is a failure of the tutor.
+	# List validator files
+	job.validator_files = os.listdir(job.working_dir)
+	for file in job.student_files:
+		if file in job.validator_files:
+			job.validator_files.remove(file)
+	logger.debug("validator-files: {0}".format(job.validator_files))
+	
+	# Decide which validator to use
+	py_files = [f for f in job.validator_files if f.endswith(".py")]
+	cpp_files = [f for f in job.validator_files if f.endswith(".cpp")]
+	if len(py_files) == 1:
+		if job.validator_script_name != job.working_dir+py_files[0]:
+			# The download is already the script, but has the wrong name
+			logger.warning("Renaming {0} to {1}.".format(
+				py_files[0], job.validator_script_name))
+			shutil.move(py_files[0], job.validator_script_name)
+	elif cpp_files:
+		logger.debug("Try to select an example c++ from: {0}".format(cpp_files))
+		job.cpp_example, job.cpp_main, job.cpp_config = find_cpp_config(job.working_dir, cpp_files)	
+		logger.debug("cpp_example: {0}".format(job.cpp_example))
+		logger.debug("cpp_main: {0}".format(job.cpp_main))
+		logger.debug("cpp_config: {0}".format(job.cpp_config))
+		job.gi_validator = True
+		if not job.cpp_example:
 			info_student = "Internal error with the validator. Please contact your course responsible."
-			info_tutor = "Error: Missing validator.py or *.cpp in the validator archive."
+			info_tutor = "Error: Couldn't find an example cpp"
 			logger.error(info_tutor)
 			raise JobException(info_student=info_student,
 							   info_tutor=info_tutor)
-		else:
-			# The download is probably already the script, but has the wrong name
-			logger.warning("Renaming {0} to {1}.".format(
-				validator_path, job.validator_script_name))
-			shutil.move(validator_path, job.validator_script_name)
+	else:
+		info_student = "Internal error with the validator. Please contact your course responsible."
+		info_tutor = "Error: Missing validator"
+		logger.error(info_tutor)
+		raise JobException(info_student=info_student,
+						   info_tutor=info_tutor)
+	
 
 def switch_owner_of_working_directory(job):
 	uid = job._config.getint('Execution', 'uid')

@@ -26,6 +26,11 @@ RUN chmod -R o-x /usr/local/sbin \
 
 RUN adduser --gecos "" --disabled-password opensubmit
 
+
+RUN touch /var/log/cron.log
+# Redirect output directly into Docker stdout / stderr
+RUN echo "* * * * * /usr/local/bin/opensubmit-exec run > /proc/1/fd/1 2>/proc/1/fd/2\n" | crontab
+
 COPY docker/docker-entry.sh /
 RUN chmod 700 /docker-entry.sh
 

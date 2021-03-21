@@ -8,11 +8,12 @@ with open('requirements.txt') as f:
 
 setup(
     name = 'opensubmit-exec',
-    version = '0.9.0',
-    url = 'hhttps://github.com/mGrapf/opensubmit-gi',
+    version = '0.9.9',
+    url = 'https://github.com/mGrapf/opensubmit-gi',
     license='AGPL',
     author = 'Mathias Denz',
-    description = 'This is the executor daemon for the OpenSubmit-GI web application.',
+    description = 'This is a modded executor for the OpenSubmit web application.',
+    long_description = '',
     author_email = 'mathias.denz@gmail.com',
     classifiers=[
         'Development Status :: 1 - Alpha',

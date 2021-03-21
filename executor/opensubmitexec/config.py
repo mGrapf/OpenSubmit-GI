@@ -112,6 +112,10 @@ file={file}
 to_file={to_file}
 
 # Log level, as described in the Python logging module documentation
+# ERROR
+# WARNING
+# INFO
+# DEBUG
 level={level}
 '''
 
