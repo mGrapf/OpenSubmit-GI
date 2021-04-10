@@ -15,7 +15,7 @@ Dieser OpenSubmit-Fork behandelt ausschließlich die Testmaschine, welche für d
 
 ------------
 
-Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches automatisch den offiziellen OpenSubmit-Server, eine dafür notwendige Datenbank und die C++ Testmaschine herunterläd und ausführt. Führen Sie dazu folgende Schritte aus:
+Für einen Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches automatisch den offiziellen OpenSubmit-Server, eine dafür notwendige Datenbank und die C++ Testmaschine herunterläd und ausführt. Führen Sie dazu folgende Schritte aus:
 
 * ggf. `Docker <https://docs.docker.com/get-docker/>`_ und `Docker Compose <https://docs.docker.com/compose/install/>`_ installieren
 * `docker-compose.yml <https://raw.githubusercontent.com/mGrapf/opensubmit/master/docker-compose.yml>`_ herunterladen
