@@ -9,9 +9,9 @@ Es beinhaltet folgende Schwerpunkte:
 * Dokumentation und Anleitungen in deutscher Sprache
 * Anpassungen für das "Modul Grundlagen Informatik I und II" der TU Chemnitz:
 
-    * Integrierter C++ Vergleichstest
-    * Erleichterte Bedienung des lokalen Tests
-    * Mehr Sicherheit durch Non-Root-Modus
+  * Integrierter C++ Vergleichstest
+  * Erleichterte Bedienung des lokalen Tests
+  * Mehr Sicherheit durch Non-Root-Modus
 
 
 
