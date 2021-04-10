@@ -13,9 +13,15 @@ Es beinhaltet folgende Schwerpunkte:
   * Erleichterte Bedienung des lokalen Tests
   * Mehr Sicherheit durch Non-Root-Modus
 
-Die Testmaschine kann als Docker-Image mit ``docker pull mGrapf/opensubmit-exec`` bezogen werden.
+-------
 
-Eine Installation der aktuellsten Version ist mit ``pip install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor`` möglich.
+Die Testmaschine kann als Docker-Image bezogen werden:
+
+* ``docker pull mGrapf/opensubmit-exec``
+
+Eine Installationo mit Pip ist möglich durch:
+
+* ``pip install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor``
 
 Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `OpenSubmit-Wiki <https://github.com/mGrapf/opensubmit/wiki>`_ des Projekts.
 
