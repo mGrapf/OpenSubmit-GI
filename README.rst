@@ -9,9 +9,11 @@ Dieser OpenSubmit-Fork behandelt ausschließlich die Testmaschine, welche für d
 * Projektdateien, welche nicht die Testmaschine betreffen, wurden entfernt.
 * Die Testmaschine wurde u.a. um folgende Funktionen erweitert:
 
-    * Automatischer Vergleich von C++ Programmen mit einer Mustervorlage
-    * Erleichterte Bedienung des lokalen Tests
-    * Sicherheitsfeatures: u.a. die Möglichkeit der Programmausführung mit einem eingeschränktem Nutzerprofil
+  * Automatischer Vergleich von C++ Programmen mit einer Mustervorlage
+  * Erleichterte Bedienung des lokalen Tests
+  * Sicherheitsfeatures: u.a. die Möglichkeit der Programmausführung mit einem eingeschränktem Nutzerprofil
+
+------------
 
 Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches automatisch den offiziellen OpenSubmit-Server, eine dafür notwendige Datenbank und die C++ Testmaschine herunterläd und ausführt. Führen Sie dazu folgende Schritte aus:
 
