@@ -1,38 +1,23 @@
-Über OpenSubmit
-===============
+OpenSubmit C++ Testmaschine
+============================
 
-Dies ist ein Fork des OpenSubmit-Projekts: https://github.com/troeger/opensubmit
+`OpenSubmit <https://github.com/troeger/opensubmit>`_ besteht aus zwei Teilen: dem Webinterface und der Testmaschine, welche der Ausführung und dem Test der eingereichten Programme dient. Beide Teile können unabhängig voneinander arbeiten.
 
-Es beinhaltet folgende Schwerpunkte:
+Dieser OpenSubmit-Fork behandelt ausschließlich die Testmaschine, welche für die Module "Grundlagen der Informatik I und II" der "TU Chemnitz" angepasst und erweitert wurde. Ziel war die Bedienung und Weiterentwicklung zu vereinfachen. Die Unterschiede zum Hauptprojekt können wie folgt zusammengefasst werden:
 
-* Projekt verkleinern/vereinfachen, um den Einstieg in OpenSubmit zu erleichtern
-* Anpassungen für das Modul Grundlagen Informatik
-* Dokumentation und Anleitungen in deutscher Sprache
+* Die Dokumentation wurde in deutscher Sprache verfasst.
+* Projektdeien, welche nicht die Testmaschine betreffen, wurden entfernt.
+* Die Testmaschine wurde u.a. um folgende Funktionen erweitert:
+    * Automatischer Vergleich von C++ Programmen mit einer Mustervorlage
+    * Erleichterte Bedienung des lokalen Tests
+    * Sicherheitsfeatures: u.a. eine Programmausführung mit eingeschränktem Nutzerprofil
 
+Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches automatisch den offiziellen OpenSubmit-Server, eine dafür notwendige Datenbank und die C++ Testmaschine herunterläd und ausführt. Führen Sie dazu folgende Schritte aus:
 
+* ggf. `Docker <https://docs.docker.com/get-docker/>`_ und `Docker Compose <https://docs.docker.com/compose/install/>`_ installieren
+* `docker-compose.yml <https://raw.githubusercontent.com/mGrapf/opensubmit/master/docker-compose.yml>`_ herunterladen
+* Im Verzeichnis der docker-compose.yml ``docker compose up`` ausführen. Dies läd die erforderlichen Images herunter (ca. 2 GB) und startet diese mit einer Demo-Konfiguration.
+* `http://localhost:8000 <http://localhost:8000>`_ aufrufen, um zur OpenSubmit Web-Oberfläche zu gelangen
 
-OpenSubmit
-----------
-
-Wohingegen andere Tools wie Moodle versuchen universell alle Arten von Aufgaben abzudecken, wurde OpenSubmit speziell für die Verwaltung und Kontrolle von Programmier-Aufgaben entwickelt.  Dadurch kann es die spezifischen Anforderungen an ein Programm-Validierungs-Tool erfüllen und gleichzeitig übersichtlich und leicht erlernbar sein.
-
-OpenSubmit besteht aus zwei Teilen, dem Webinterface, welches der Verwaltung der einzelnen Einreichungen dient, und dem Programm-Validator. Beide Programme können unabhängig voneinander arbeiten. In diesem Dokument werden wir uns zunächst mit dem Validator beschäftigen, welcher in Zukunft nur noch OpenSubmit-Exec genannt wird.
-
-OpenSubmit-Exec-GI
-^^^^^^^^^^^^^^^^^^
-
-„Das automatisierte Testen wird in OpenSubmit von einem Python 3-Skript durchgeführt, welches für jede Aufgabe neu erstellt werden muss. Was dieses Skript tut, ist Ihnen überlassen - am Ende benötigt OpenSubmit nur einen Hinweis auf das Ergebnis. Allgemeine Aufgaben wie das Kompilieren und Ausführen von Code werden von Hilfsfunktionen unterstützt, die Sie in diesem Skript verwenden können.“ [#FN1]_
-
-OpenSubmit-Exec gibt dem Anwender also viel Freiheit, aber ggf. auch viel Arbeit. Gerade für den Einstieg in OpenSubmit und den Aufbau erster Aufgaben kann dies eine große Hürde darstellen. Da für die Lehrveranstaltungen Grundlagen der Informatik/Informatik I und II bereits die Programmiersprache auf C++ begrenzt ist und die Aufgaben überwiegend als Übung und somit ohne strenge Bewertung gegeben werden, kann die Aufgabe des Validators aber eingegrenzt werden.
-
-Deshalb wurde, um das Erstellen von Aufgaben zu vereinfachen und zu beschleunigen, ein einzelnes und universell einsetzbares Validator-Skript geschrieben und in OpenSubmit-Exec integriert. Dieser kann den abgegebenem Beispielcode mit einer Beispieldatei vergleichen. Eine Aufgabe kann somit ohne spezifischem Python-Skript erstellt werden. Gerade für Tutoren ohne Python-Kenntnisse wird dadurch die Aufgabenerstellung stark erleichtert. Die Option der spezifische Aufgabenerstellung mit Validatorskript bleibt aber weiterhin gegeben.
-
-Der neue Validator mit integriertem Vergleichsskript wurde für die Lehrveranstaltung Grundlagen Informatik entwickelt und wird entsprechend OpenSubmit-Exec-GI genannt. Das Erstellen von Aufgaben kann durch diesen stark vereinfacht werden. Allerdings gestaltet sich entsprechend auch die Bedienung etwas anders. Deshalb lohnt es sich einen Blick in das `Howto <https://github.com/mGrapf/opensubmit-gi/tree/master/docs/howto>`_ zu werfen.
-
-
-
-
-Literatur
-^^^^^^^^^
-.. [#FN1] http://docs.open-submit.org/en/latest/teacher.html#automated-testing-of-submissions
+Ausführliche Anleitungen zur Installation und Testerstellung finden sich im OpenSubmit-`Wiki <https://github.com/mGrapf/opensubmit/wiki>`_.
 
