@@ -24,7 +24,7 @@ Eine Installation mit Pip ist möglich durch:
 * ``pip3 install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor``
 
 
-Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `OpenSubmit-Wiki <https://github.com/mGrapf/opensubmit/wiki>`_ des Projekts.
+Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `Wiki <https://github.com/mGrapf/opensubmit/wiki>`_.
 
 ---------
 
