@@ -19,7 +19,7 @@ Die Testmaschine kann als Docker-Image bezogen werden:
 
 * ``docker pull mgrapf/opensubmit-exec``
 
-Eine Installation mit Pip ist durch eine der folgenden Optionen möglich:
+Eine Installation des Executors ist durch eine der folgenden Optionen möglich:
 
 * ``pip3 install`` `opensubmit_exec-0.9.9-py3-none-any.whl <https://github.com/mGrapf/opensubmit/raw/master/executor/dist/opensubmit_exec-0.9.9-py3-none-any.whl>`_
 
