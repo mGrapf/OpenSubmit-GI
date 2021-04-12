@@ -23,5 +23,19 @@ Eine Installation mit Pip ist möglich durch:
 
 * ``pip3 install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor``
 
+---------
+
+Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches automatisch den offiziellen OpenSubmit-Server, eine dafür notwendige Datenbank und die C++ Testmaschine herunterläd und ausführt. Führen Sie dazu folgende Schritte aus:
+
+1. `Docker installieren <https://docs.docker.com/get-docker/>`_
+2. `Docker Compose installieren <https://docs.docker.com/compose/install/>`_
+3. Diese `docker-compose.yml <https://raw.githubusercontent.com/mgrapf/opensubmit/master/deployment/docker-compose.yml>`_ herunterladen
+4. **docker-compose-up** im Terminal ausführen.
+   Die docker-compose.yml muss sich dabei im aktuellen Verzeichnis befinden.
+   Docker Compose läd nun automatisch die benötigten Docker Images herunter (ca. 2GB) und startet diese.
+5. `http://localhost:8000/ <http://localhost:8000/>`_ aufrufen um zur OpenSubmit-Weboberfläche zu gelangen.
+
+----------
+
 Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `OpenSubmit-Wiki <https://github.com/mGrapf/opensubmit/wiki>`_ des Projekts.
 
