@@ -17,7 +17,7 @@ Es beinhaltet folgende Schwerpunkte:
 
 Die Testmaschine kann als Docker-Image bezogen werden:
 
-* ``docker pull mGrapf/opensubmit-exec``
+* ``docker pull mgrapf/opensubmit-exec``
 
 Eine Installation mit Pip ist möglich durch:
 
