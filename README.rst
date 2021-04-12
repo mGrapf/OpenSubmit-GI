@@ -21,6 +21,10 @@ Die Testmaschine kann als Docker-Image bezogen werden:
 
 Eine Installation mit Pip ist möglich durch:
 
+* ``pip3 install`` `opensubmit_exec-0.9.9-py3-none-any.whl <https://github.com/mGrapf/opensubmit/raw/master/executor/dist/opensubmit_exec-0.9.9-py3-none-any.whl>`_
+
+oder
+
 * ``pip3 install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor``
 
 
