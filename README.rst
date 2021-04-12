@@ -19,16 +19,14 @@ Die Testmaschine kann als Docker-Image bezogen werden:
 
 * ``docker pull mgrapf/opensubmit-exec``
 
-Eine Installation mit Pip ist möglich durch:
+Eine Installation mit Pip ist durch eine der folgenden Optionen möglich durch:
 
 * ``pip3 install`` `opensubmit_exec-0.9.9-py3-none-any.whl <https://github.com/mGrapf/opensubmit/raw/master/executor/dist/opensubmit_exec-0.9.9-py3-none-any.whl>`_
-
-oder
 
 * ``pip3 install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor``
 
 
-Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `Wiki <https://github.com/mGrapf/opensubmit/wiki>`_.
+Ausführliche Anleitungen zur Installation der C++ Testmaschine und zur Testerstellung finden sich im `Wiki <https://github.com/mGrapf/opensubmit/wiki>`_.
 
 ---------
 
