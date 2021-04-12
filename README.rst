@@ -33,7 +33,7 @@ Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches autom
 1. `Docker installieren <https://docs.docker.com/get-docker/>`_
 2. `Docker Compose installieren <https://docs.docker.com/compose/install/>`_
 3. Folgende Docker Compose Konfiguration herunterladen: `docker-compose.yml <https://raw.githubusercontent.com/mGrapf/opensubmit/master/docker-compose.yml>`_
-4. **docker-compose-up** im Terminal ausführen.
+4. ``docker-compose-up`` im Terminal ausführen.
    Die docker-compose.yml muss sich dabei im aktuellen Verzeichnis befinden.
    Docker Compose läd nun automatisch die benötigten Docker Images herunter (ca. 2GB) und startet diese.
 5. `http://localhost:8000/ <http://localhost:8000/>`_ aufrufen um zur OpenSubmit-Weboberfläche zu gelangen.
