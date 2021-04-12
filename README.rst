@@ -23,6 +23,9 @@ Eine Installation mit Pip ist möglich durch:
 
 * ``pip3 install git+https://github.com/mgrapf/opensubmit#egg=opensubmit-exec\&subdirectory=executor``
 
+
+Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `OpenSubmit-Wiki <https://github.com/mGrapf/opensubmit/wiki>`_ des Projekts.
+
 ---------
 
 Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches automatisch den offiziellen OpenSubmit-Server, eine dafür notwendige Datenbank und die C++ Testmaschine herunterläd und ausführt. Führen Sie dazu folgende Schritte aus:
@@ -35,7 +38,5 @@ Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches autom
    Docker Compose läd nun automatisch die benötigten Docker Images herunter (ca. 2GB) und startet diese.
 5. `http://localhost:8000/ <http://localhost:8000/>`_ aufrufen um zur OpenSubmit-Weboberfläche zu gelangen.
 
-----------
 
-Ausführliche Anleitungen zur Installation und zur Testerstellung der C++ Testmaschine finden sich im `OpenSubmit-Wiki <https://github.com/mGrapf/opensubmit/wiki>`_ des Projekts.
 
