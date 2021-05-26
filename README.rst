@@ -42,4 +42,4 @@ Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches autom
 
 ---------
 
-Bei Fragen und Anregungen stehe ich jederzeit gern zur Verfügung: mathias.denz@gmail.com
+Bei Fragen und Anregungen stehe ich jederzeit gern zur Verfügung: mein-computer@ist-allein.info
