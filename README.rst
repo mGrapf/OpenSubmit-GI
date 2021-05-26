@@ -40,5 +40,8 @@ Für den Schnelleinstieg wurde ein Docker-Compose-Skript erstellt, welches autom
    Docker Compose läd nun automatisch die benötigten Docker Images herunter (ca. 2GB) und startet diese.
 5. `http://localhost:8000/ <http://localhost:8000/>`_ aufrufen um zur OpenSubmit-Weboberfläche zu gelangen.
 
+---------
 
+Bei Fragen und Anregungen stehe ich jederzeit gern zur Verfügung.
+Schreibt mir :)
 
