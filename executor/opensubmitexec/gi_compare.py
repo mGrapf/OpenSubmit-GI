@@ -2,12 +2,15 @@
 import re
 
 def compare(output_example : str, output_submission : str, config : {}):
+	# backwards compatibility:
+	if config['compare_only_numbers']:
+		config['compare_numbers'] = True
 	
 	# DEBUG_config_string
 	debug_text = ""
 	def dprint(text='', end='\n'):
 		nonlocal debug_text
-		debug_text += text + end
+		debug_text += text + end	
 	
 	# Everything in lower case? (Default)
 	if config['compare_case_insensitive']:
@@ -66,40 +69,42 @@ def compare(output_example : str, output_submission : str, config : {}):
 	output_example = replace_example
 	output_submission = replace_submission
 	
-	# Compare only numbers? (optional)
-	if config['compare_only_numbers']:
+	# Compare only numbers or letters?
+	if config['compare_numbers'] and config['compare_letters']:
+		replace_example = re.sub('[^\s0-9A-Za-z]+','',output_example)
+		replace_submission = re.sub('[^\s0-9A-Za-z]+','',output_submission)
+		if replace_example != "":
+			output_example = replace_example
+			output_submission = replace_submission
+			dprint('- compare_only_letters_and_numbers')
+		else:
+			dprint('- compare_only_letters_and_numbers: error (string would be empty)')
+	elif config['compare_numbers']:
 		replace_example = re.sub('[^\s0-9]+','',output_example)
 		replace_submission = re.sub('[^\s0-9]+','',output_submission)
-		if replace_example:
+		if replace_example != "":
 			output_example = replace_example
 			output_submission = replace_submission
 			dprint('- compare_only_numbers')
 		else:
-			dprint('- compare_only_numbers: error (string would be empty)')
+			dprint('- compare_numbers: error (string would be empty)')
+	elif config['compare_letters']:
+		replace_example = re.sub('[^\sA-Za-z]+','',output_example)
+		replace_submission = re.sub('[^\sA-Za-z]+','',output_submission)
+		if re.sub('\s','',output_example) != "":
+			output_example = replace_example
+			output_submission = replace_submission
+			dprint('- compare_letters')
+		else:
+			dprint('- compare_letters: error (string would be empty)')
 
+	# format config_string
 	if debug_text:
-		debug_text = '### Comparison configuration:\n'+debug_text
-
-	"""
-	print("Debug")
-	print('### Beispieltext: ###')
-	for e in output_example.split('\n'):
-		print('|'+e+'|')
-	print()
-	print('### Zu vergleichender Text ###')
-	for e in output_submission.split('\n'):
-		print('|'+e+'|')
-	print()
-	"""
+		debug_text = '### Comparison configuration:\n'+debug_text+"\n"
 	
-	if output_example == "":
-		raise Exception('The string "output_example" is empty')
-	if debug_text:
-		dprint()
-	
-	
-	
-	
+	# example-string empty?
+	if not re.sub('\s','',output_example):
+		raise Exception('The example output is empty. Wrong configuration!')
 	
 	# Split text into lines
 	if config['compare_line_by_line']:
@@ -121,6 +126,7 @@ def compare(output_example : str, output_submission : str, config : {}):
 		if output.strip():
 			tmp.append(output.strip())
 	output_submission = tmp
+	
 	
 	
 	# Split lines into words
@@ -299,32 +305,35 @@ def compare(output_example : str, output_submission : str, config : {}):
 
 
 if __name__ == '__main__':
-	config = {}
-	config['compare_case_insensitive'] = True	# Default = False
-	config['compare_only_numbers'] = False		# Default = False
 	
-#	config['remove_whitespaces'] = False		# Default = False -> wird bald entfernt
-	config['replace_text_1'] = '"Matrix enthalten." -> "Matrix enthalten"'
+############################ config ####################################
+	config = {}
+	config['compare_case_insensitive'] = False	# Default = False
+	config['compare_numbers'] = False		# Default = False
+	config['compare_letters'] = False		# Default = False
+	config['replace_text_1'] = ''				# "Text" -> "neuer Text"
 
 	
 	config['compare_line_by_line'] = False		# Default = False
-	config['compare_word_by_word'] = True		# Default = False
-	config['compare_whitespaces'] = True		# Default = False
+	config['compare_word_by_word'] = False		# Default = False
+	config['compare_whitespaces'] = False		# Default = False
 
 	config['skip_first_lines'] = False			# Defaylt = False
 	config['skip_lines'] = False				# Default = False
-
 	config['skip_words'] = False				# Default = False
-	config['skip_chars'] = False			# Default = False
+	config['skip_chars'] = False				# Default = False
 	
-	config['random_line_order'] = False		# Default = False
-	config['random_word_order'] = False		# Default = False
-	config['random_char_order'] = False	# Default = False
+	config['random_line_order'] = False			# Default = False
+	config['random_word_order'] = False			# Default = False
+	config['random_char_order'] = False			# Default = False
+	
+	# backwards compatibility:
+	config['compare_only_numbers'] = False
+############################ /config ###################################
+	
 
-	output_example = '''Hello World
-'''
-	output_submission = '''hello  world
-'''
+	output_example = '''hello world'''
+	output_submission = '''hello     world'''
 	
 	equal, debug_text = compare(output_example,output_submission,config)
 	print(debug_text)

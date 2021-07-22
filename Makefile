@@ -31,7 +31,7 @@ bumpversion:
 clean:
 	rm -fr  executor/build
 	rm -fr  executor/*egg-info
-	rm -f  ./.coverage
+	rm -fr  venv
 	find . -name "*.bak" -delete
 	find . -name "__pycache__" -delete
 
