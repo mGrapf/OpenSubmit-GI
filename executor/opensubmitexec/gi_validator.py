@@ -84,6 +84,8 @@ def validate(job):
 				compare_whitespaces = FALSE
 				compare_case_insensitive = FALSE
 				compare_only_numbers = FALSE
+                compare_numbers = FALSE
+                compare_letters = FALSE
 				
 				skip_first_lines = FALSE
 				skip_lines = FALSE
@@ -133,6 +135,8 @@ def validate(job):
 		dconfig['input_time'] = config.getfloat('CONFIG', 'input_time')
 		dconfig['compare_case_insensitive'] = config.getboolean('CONFIG', 'compare_case_insensitive')
 		dconfig['compare_only_numbers'] = config.getboolean('CONFIG', 'compare_only_numbers')
+		dconfig['compare_numbers'] = config.getboolean('CONFIG', 'compare_numbers')
+		dconfig['compare_letters'] = config.getboolean('CONFIG', 'compare_letters')
 		dconfig['compare_whitespaces'] = config.getboolean('CONFIG', 'compare_whitespaces')
 		dconfig['compare_line_by_line'] = config.getboolean('CONFIG', 'compare_line_by_line')
 		dconfig['compare_word_by_word'] = config.getboolean('CONFIG', 'compare_word_by_word')
