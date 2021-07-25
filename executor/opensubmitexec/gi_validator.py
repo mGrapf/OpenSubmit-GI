@@ -84,8 +84,8 @@ def validate(job):
 				compare_whitespaces = FALSE
 				compare_case_insensitive = FALSE
 				compare_only_numbers = FALSE
-                compare_numbers = FALSE
-                compare_letters = FALSE
+				compare_numbers = FALSE
+				compare_letters = FALSE
 				
 				skip_first_lines = FALSE
 				skip_lines = FALSE
