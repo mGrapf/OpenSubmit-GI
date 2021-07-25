@@ -11,5 +11,5 @@
 '''
 
 # The default location of the config file for the executor
-CONFIG_FILE_DEFAULT='/etc/opensubmit/executor.ini'
+CONFIG_FILE_DEFAULT='$HOME/.opensubmit-exec.ini'
 
