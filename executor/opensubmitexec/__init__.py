@@ -11,5 +11,6 @@
 '''
 
 # The default location of the config file for the executor
-CONFIG_FILE_DEFAULT='$HOME/.opensubmit-exec.ini'
+import os
+CONFIG_FILE_DEFAULT=os.path.expanduser('~')+'/.opensubmit-exec.ini'
 
